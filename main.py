@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser()
 
 ######################## Model parameters ########################
 home_dir = os.getcwd()
-parser.add_argument('--experiment_description', default='Exp1', type=str,
+parser.add_argument('--experiment_description', default='exp1', type=str,
                     help='Experiment Description')
 parser.add_argument('--run_description', default='run1', type=str,
                     help='Experiment Description')
