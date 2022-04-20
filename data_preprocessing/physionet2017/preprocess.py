@@ -37,7 +37,7 @@ def get_X_y(alias):
     for file_name, diagnosis in tqdm(zip(file_names, diagnoses)):
         signal, _ = wfdb.rdsamp(os.path.join(basepath, file_name))
         signal_min = min(signal_min, signal.min())
-        signal_min = max(signal_max, signal.max())
+        signal_max = max(signal_max, signal.max())
         dataset[file_name] = (signal, label_map[diagnosis]) # file_name is just patient id, signal is a 2d np array,
                                                             # label class is from 0 - 3.
         X.append(signal)
@@ -54,7 +54,7 @@ def split_signal(X, y):
     y_replicated = [[label] * n for (n, label) in tqdm(zip(X_len, y))]
     y = [el for sublst in y_replicated for el in sublst]
     y = np.expand_dims(y, axis=1)
-    print(X.shape, y.shape)
+#     print(X.shape, y.shape)
     return X, y
 
 X_train, y_train = get_X_y(aliases['train'])

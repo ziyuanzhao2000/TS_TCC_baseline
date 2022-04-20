@@ -8,7 +8,7 @@ class Config(object):
 
         self.num_classes = 4
         self.dropout = 0.35
-        self.features_len = 24
+        self.features_len = 190
 
         # training configs
         self.num_epoch = 40
