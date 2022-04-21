@@ -27,6 +27,7 @@ def get_X_y(alias):
     basepath = f'{os.getcwd()}/{data_folder}/{alias}'
     # First get list of file names from the data folder
     file_names = [file_name.split('.hea')[0] for file_name in os.listdir(basepath) if '.hea' in file_name]
+    file_names.sort()
     diagnoses = []
     with open(os.path.join(basepath, 'REFERENCE.csv'), 'r') as f:
         reader = csv.reader(f, delimiter=",")
@@ -42,7 +43,6 @@ def get_X_y(alias):
                                                             # label class is from 0 - 3.
         X.append(signal)
         y.append(label_map[diagnosis])
-
     return X, y
 
 def split_signal(X, y):
@@ -52,8 +52,8 @@ def split_signal(X, y):
     X = (X - signal_min) / (signal_max - signal_min) # normalize
     X = np.expand_dims(X, axis=1) # equivalently, unsqueeze
     y_replicated = [[label] * n for (n, label) in tqdm(zip(X_len, y))]
-    y = [el for sublst in y_replicated for el in sublst]
-    y = np.expand_dims(y, axis=1)
+    y = np.array([el for sublst in y_replicated for el in sublst])
+#     y = np.expand_dims(y, axis=1) do not inflate, for TS-TCC model
 #     print(X.shape, y.shape)
     return X, y
 
