@@ -45,6 +45,7 @@ def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, t
 
 
 def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, criterion, train_loader, config, device, training_mode):
+    print('start to train model')
     total_loss = []
     total_acc = []
     model.train()
@@ -76,10 +77,10 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
 
         if training_mode == "ts_sd": # note, in config files, just use gaussian noise, this is to match the denoising
                                      # task used in the ts_sd paper
-           base_signal = aug1
-
-           denoised_signal = 0 # ??
-
+            base_signal = aug1
+            denoised_signal = 0 # ??
+            print('hit ts_sd case in train model')
+            exit(1)
         else:
             output = model(data)
 

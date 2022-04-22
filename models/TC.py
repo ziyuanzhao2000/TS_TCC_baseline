@@ -64,6 +64,7 @@ class TS_SD(nn.Module):
         self.conv_V_encoders = [nn.Conv1d(1, 1, n, device=self.device) for n in self.kernel_sizes]
         self.conv_K_encoders = [nn.Conv1d(1, 1, n, device=self.device) for n in self.kernel_sizes]
         self.dim = np.sqrt(1500)
+        print('model inited!')
 
     def forward(self, signal):
         heads_out = []
