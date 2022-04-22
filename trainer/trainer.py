@@ -113,6 +113,7 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
 
     criterion = nn.CrossEntropyLoss()
     outs = np.array([])
+    probs = np.array([])
     trgs = np.array([])
 
     with torch.no_grad():
@@ -134,6 +135,8 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
             if training_mode != "self_supervised":
                 pred = predictions.max(1, keepdim=True)[1]  # get the index of the max log-probability
                 outs = np.append(outs, pred.cpu().numpy())
+                exp_logits = torch.exp(predictions.cpu().numpy())
+                probs = exp_logits / (1 + exp_logits)
                 trgs = np.append(trgs, labels.data.cpu().numpy())
 
     if training_mode != "self_supervised":
@@ -145,5 +148,5 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
         return total_loss, total_acc, [], []
     else:
         total_acc = torch.tensor(total_acc).mean()  # average acc
-    print(roc_auc_score(trgs, outs))
+    print(roc_auc_score(trgs, probs), multi_class='ovo')
     return total_loss, total_acc, outs, trgs
