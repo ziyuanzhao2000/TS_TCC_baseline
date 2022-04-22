@@ -45,6 +45,8 @@ def get_X_y(alias):
         y.append(label_map[diagnosis])
     return X, y
 
+# returns X of dimension: n_samples x n_channels x window_len
+#         y ...         : n_samples
 def split_signal(X, y):
     X_len = [arr.shape[0] // window_len for arr in X]
     X = [arr[:arr_len * window_len].reshape((arr_len, window_len)) for (arr, arr_len) in zip(X, X_len)]
