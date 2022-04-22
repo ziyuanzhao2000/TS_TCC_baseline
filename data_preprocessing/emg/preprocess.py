@@ -8,6 +8,7 @@ target_fs = 4000 # Hz
 downsample_stride = sample_fs // target_fs
 target_fs = sample_fs // downsample_stride
 window_len = 1500 # samples
+fold = 1 # to inflate small dataset, if needed
 
 data_folder = 'data'
 data_file_names = ['emg_healthy.txt', 'emg_myopathy.txt', 'emg_neuropathy.txt']
@@ -30,8 +31,10 @@ for data_file_name, label in zip(data_file_names, labels):
         signal = signals[i:i+1, :]
         signal_min = min(signal_min, signal.min())
         signal_max = max(signal_max, signal.max())
-        X.append(signal)
-        y.append(label)
+        for _ in range(fold):
+            X.append(signal)
+            y.append(label)
+print(len(X))
 
 X = np.stack(tuple(X))
 X = (X - 0) / (signal_max - signal_min)
@@ -39,7 +42,7 @@ y = np.array(y)
 
 # 6-2-2 split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-X_train, X_val, y_val, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=42)
 
 # assumes we run script from the inner data folder
 output_dir = os.getcwd()
