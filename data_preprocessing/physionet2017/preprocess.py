@@ -51,7 +51,7 @@ def split_signal(X, y):
     X_len = [arr.shape[0] // window_len for arr in X]
     X = [arr[:arr_len * window_len].reshape((arr_len, window_len)) for (arr, arr_len) in zip(X, X_len)]
     X = np.vstack(tuple(X))
-    X = (X - signal_min) / (signal_max - signal_min) # normalize
+    X = (X - 0) / (signal_max - signal_min) # normalize
     X = np.expand_dims(X, axis=1) # equivalently, unsqueeze
     y_replicated = [[label] * n for (n, label) in tqdm(zip(X_len, y))]
     y = np.array([el for sublst in y_replicated for el in sublst])

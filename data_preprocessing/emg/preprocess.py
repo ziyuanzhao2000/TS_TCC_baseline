@@ -34,7 +34,7 @@ for data_file_name, label in zip(data_file_names, labels):
         y.append(label)
 
 X = np.stack(tuple(X))
-X = (X - signal_min) / (signal_max - signal_min)
+X = (X - 0) / (signal_max - signal_min)
 y = np.array(y)
 
 # 6-2-2 split
