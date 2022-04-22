@@ -59,10 +59,11 @@ class TS_SD(nn.Module):
         super(TS_SD, self).__init__()
         self.num_heads = 12 # to prevent reading another config file, we will hardcode this (it's a baseline exp anyway)
         self.kernel_sizes = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
+        self.feature_len = 8
         self.device = device
-        self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(1, 1, kernel_size=n) for n in self.kernel_sizes])
-        self.conv_V_encoders = nn.ModuleList([nn.Conv1d(1, 1, kernel_size=n) for n in self.kernel_sizes])
-        self.conv_K_encoders = nn.ModuleList([nn.Conv1d(1, 1, kernel_size=n) for n in self.kernel_sizes])
+        self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(1, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+        self.conv_V_encoders = nn.ModuleList([nn.Conv1d(1, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+        self.conv_K_encoders = nn.ModuleList([nn.Conv1d(1, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.dim = np.sqrt(1500)
 
     def forward(self, signal):
@@ -72,10 +73,11 @@ class TS_SD(nn.Module):
             Q = Qe(signal)
             V = Ve(signal)
             K = Ke(signal)
-            # K, Q, V of shape batch_size x 1 x feature_len (= 1498 in this case, not sure why it isn't 1500)
-            score = torch.bmm(Q, K.transpose(1,2)) / self.dim
+            # K, Q, V of shape batch_size (nb) * feature_len (fl) * window size/time steps (ts)
+            # Q.T = nb * ts * fl ; K = nb * fl * ts, score = nb * ts * ts
+            score = torch.bmm(Q.transpose(1,2), K) / self.dim
             attn = F.softmax(score, -1)
             print(attn)
-            context = torch.bmm(attn, V)
+            context = torch.bmm(attn, V.transpose(1,2)).transpose(1,2) # nb * fl * ts, same as QVK
             heads_out.append(context)
             print(context.shape)
