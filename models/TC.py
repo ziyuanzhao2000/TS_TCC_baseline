@@ -60,16 +60,10 @@ class TS_SD(nn.Module):
         self.num_heads = 12 # to prevent reading another config file, we will hardcode this (it's a baseline exp anyway)
         self.kernel_sizes = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
         self.device = device
-        self.conv_Q_encoders = []
-        self.conv_V_encoders = []
-        self.conv_K_encoders = []
-        for n in self.kernel_sizes:
-            print(n)
-            self.conv_Q_encoders.append(nn.Conv1d(1, 1, kernel_size=n))
-            self.conv_Q_encoders.append(nn.Conv1d(1, 1, kernel_size=n))
-            self.conv_Q_encoders.append(nn.Conv1d(1, 1, kernel_size=n))
+        self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(1, 1, kernel_size=n) for n in self.kernel_sizes])
+        self.conv_V_encoders = nn.ModuleList([nn.Conv1d(1, 1, kernel_size=n) for n in self.kernel_sizes])
+        self.conv_K_encoders = nn.ModuleList([nn.Conv1d(1, 1, kernel_size=n) for n in self.kernel_sizes])
         self.dim = np.sqrt(1500)
-        print('model inited!')
 
     def forward(self, signal):
         heads_out = []
