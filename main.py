@@ -7,7 +7,7 @@ import argparse
 from utils import _logger, set_requires_grad
 from dataloader.dataloader import data_generator
 from trainer.trainer import Trainer, model_evaluate
-from models.TC import TC
+from models.TC import TC, TS_SD
 from utils import _calc_metrics, copy_Files
 from models.model import base_Model
 # Args selections
@@ -84,7 +84,10 @@ logger.debug("Data loaded ...")
 
 # Load Model
 model = base_Model(configs).to(device)
-temporal_contr_model = TC(configs, device).to(device)
+if training_mode == "ts_sd":
+    temporal_contr_model = TS_SD(configs,device).to(device)
+else:
+    temporal_contr_model = TC(configs, device).to(device)
 
 if training_mode == "fine_tune":
     # load saved model of this experiment
