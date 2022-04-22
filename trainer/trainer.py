@@ -148,5 +148,5 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
         return total_loss, total_acc, [], []
     else:
         total_acc = torch.tensor(total_acc).mean()  # average acc
-    print(roc_auc_score(trgs, probs), multi_class='ovo')
+    print(roc_auc_score(trgs, probs, multi_class='ovo'))
     return total_loss, total_acc, outs, trgs
