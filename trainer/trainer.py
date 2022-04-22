@@ -11,7 +11,7 @@ import torch.nn.functional as F
 from models.loss import NTXentLoss
 
 from sklearn.metrics import roc_auc_score
-
+from sklearn.preprocessing import normalize
 
 def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, train_dl, valid_dl, test_dl, device, logger, config, experiment_log_dir, training_mode):
     # Start training
@@ -148,5 +148,8 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
         return total_loss, total_acc, [], []
     else:
         total_acc = torch.tensor(total_acc).mean()  # average acc
-    print(roc_auc_score(trgs, probs, multi_class='ovo'))
+    print(normalize(probs, axis=1)[0:3])
+    scattered_trgs = np.put_along_axis(np.zeros((len(trgs), 3)), np.expand_dims(trgs.astype(int), axis=1), 1, axis=1)
+    print(scattered_trgs)
+    print(roc_auc_score(scattered_trgs, normalize(probs, axis=1), multi_class='ovr'))
     return total_loss, total_acc, outs, trgs
