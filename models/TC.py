@@ -73,7 +73,7 @@ class TS_SD(nn.Module):
             V = Ve(signal)
             K = Ke(signal)
             # K, Q, V of shape batch_size x 1 x feature_len (= 1498 in this case, not sure why it isn't 1500)
-            score = torch.bmm(Q, K.transpose(1,2)) / self.dim)
+            score = torch.bmm(Q, K.transpose(1,2)) / self.dim
             attn = F.softmax(score, -1)
             print(attn)
             context = torch.bmm(attn, V)
