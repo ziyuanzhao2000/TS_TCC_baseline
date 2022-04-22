@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from .attention import Seq_Transformer
-
+import torch.nn.functional as F
 
 
 class TC(nn.Module):
@@ -52,3 +52,28 @@ class TC(nn.Module):
             nce += torch.sum(torch.diag(self.lsoftmax(total)))
         nce /= -1. * batch * self.timestep
         return nce, self.projection_head(c_t)
+
+
+class TS_SD(nn.Module):
+    def __init__(self, configs, device):
+        super(TS_SD, self).__init__()
+        self.num_heads = 13 # to prevent reading another config file, we will hardcode this (it's a baseline exp anyway)
+        self.kernel_sizes = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
+        self.device = device
+        self.conv_Q_encoders = [nn.Conv1d(1, 1, n, device=self.device) for n in self.kernel_sizes]
+        self.conv_V_encoders = [nn.Conv1d(1, 1, n, device=self.device) for n in self.kernel_sizes]
+        self.conv_K_encoders = [nn.Conv1d(1, 1, n, device=self.device) for n in self.kernel_sizes]
+        self.dim = np.sqrt(1500)
+
+    def forward(self, signal):
+        heads_out = []
+        for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
+            Q = Qe(signal)
+            V = Ve(signal)
+            K = Ke(signal)
+            print(Q.shape, V.shape, K.shape)
+            score = torch.bmm(Q * K.transpose(1,2) / self.dim)
+            attn = F.softmax(score, -1)
+            context = torch.bmm(attn, V)
+            heads_out.append(context)
+            print(context.shape)

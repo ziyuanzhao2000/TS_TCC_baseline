@@ -15,7 +15,6 @@ window_len = 1500 # samples
 testing_prefix = 'T'  # for disambiguating patient id in testing set from those in the training set
 label_map = {'N':0, 'A':1, 'O':2, '~':3}
 
-dataset = {}
 signal_min = float('inf')
 signal_max = float('-inf')
 
@@ -39,8 +38,6 @@ def get_X_y(alias):
         signal, _ = wfdb.rdsamp(os.path.join(basepath, file_name))
         signal_min = min(signal_min, signal.min())
         signal_max = max(signal_max, signal.max())
-        dataset[file_name] = (signal, label_map[diagnosis]) # file_name is just patient id, signal is a 2d np array,
-                                                            # label class is from 0 - 3.
         X.append(signal)
         y.append(label_map[diagnosis])
     return X, y

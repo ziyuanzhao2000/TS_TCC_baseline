@@ -24,7 +24,7 @@ def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, t
         # Train and validate
         train_loss, train_acc = model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, criterion, train_dl, config, device, training_mode)
         valid_loss, valid_acc, _, _ = model_evaluate(model, temporal_contr_model, valid_dl, device, training_mode)
-        if training_mode != 'self_supervised':  # use scheduler in all other modes.
+        if training_mode not in ['ts_sd', 'self_supervised']:  # use scheduler in all other modes.
             scheduler.step(valid_loss)
 
         logger.debug(f'\nEpoch : {epoch}\n'
@@ -35,7 +35,7 @@ def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, t
     chkpoint = {'model_state_dict': model.state_dict(), 'temporal_contr_model_state_dict': temporal_contr_model.state_dict()}
     torch.save(chkpoint, os.path.join(experiment_log_dir, "saved_models", f'ckp_last.pt'))
 
-    if training_mode != "self_supervised":  # no need to run the evaluation for self-supervised mode.
+    if training_mode not in ["ts_sd", "self_supervised"]:  # no need to run the evaluation for self-supervised mode.
         # evaluate on the test set
         logger.debug('\nEvaluate on the Test set:')
         test_loss, test_acc, _, _ = model_evaluate(model, temporal_contr_model, test_dl, device, training_mode)
@@ -60,8 +60,8 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
         temp_cont_optimizer.zero_grad()
 
         if training_mode == "self_supervised":
-            predictions1, features1 = model(aug1)
-            predictions2, features2 = model(aug2)
+            _, features1 = model(aug1)
+            _, features2 = model(aug2)
 
             # normalize projection feature vectors
             features1 = F.normalize(features1, dim=1)
@@ -74,6 +74,12 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             zis = temp_cont_lstm_feat1 
             zjs = temp_cont_lstm_feat2 
 
+        if training_mode == "ts_sd": # note, in config files, just use gaussian noise, this is to match the denoising
+                                     # task used in the ts_sd paper
+           base_signal = aug1
+
+           denoised_signal = 0 # ??
+
         else:
             output = model(data)
 
@@ -84,7 +90,10 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             nt_xent_criterion = NTXentLoss(device, config.batch_size, config.Context_Cont.temperature,
                                            config.Context_Cont.use_cosine_similarity)
             loss = (temp_cont_loss1 + temp_cont_loss2) * lambda1 +  nt_xent_criterion(zis, zjs) * lambda2
-            
+
+        elif training_mode == "ts_sd":
+            loss = ((base_signal - denoised_signal)**2).mean(axis=ax)
+
         else: # supervised training or fine tuining
             predictions, features = output
             loss = criterion(predictions, labels)
