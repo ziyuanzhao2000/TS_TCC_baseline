@@ -24,7 +24,7 @@ def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, t
         # Train and validate
         train_loss, train_acc = model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, criterion, train_dl, config, device, training_mode)
         valid_loss, valid_acc, _, _ = model_evaluate(model, temporal_contr_model, valid_dl, device, training_mode)
-        if training_mode not in ['ts_sd', 'self_supervised']:  # use scheduler in all other modes.
+        if training_mode not in ['ts_sd','self_supervised']:  # use scheduler in all other modes.
             scheduler.step(valid_loss)
 
         logger.debug(f'\nEpoch : {epoch}\n'

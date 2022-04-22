@@ -64,6 +64,7 @@ class TS_SD(nn.Module):
         self.conv_V_encoders = []
         self.conv_K_encoders = []
         for n in self.kernel_sizes:
+            print(n)
             self.conv_Q_encoders.append(nn.Conv1d(1, 1, kernel_size=n))
             self.conv_Q_encoders.append(nn.Conv1d(1, 1, kernel_size=n))
             self.conv_Q_encoders.append(nn.Conv1d(1, 1, kernel_size=n))

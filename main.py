@@ -139,13 +139,13 @@ if training_mode == "random_init":
 model_optimizer = torch.optim.Adam(model.parameters(), lr=configs.lr, betas=(configs.beta1, configs.beta2), weight_decay=3e-4)
 temporal_contr_optimizer = torch.optim.Adam(temporal_contr_model.parameters(), lr=configs.lr, betas=(configs.beta1, configs.beta2), weight_decay=3e-4)
 
-if training_mode == "self_supervised":  # to do it only once
+if training_mode in ["ts_sd", "self_supervised"]:  # to do it only once
     copy_Files(os.path.join(logs_save_dir, experiment_description, run_description), data_type)
 
 # Trainer
 Trainer(model, temporal_contr_model, model_optimizer, temporal_contr_optimizer, train_dl, valid_dl, test_dl, device, logger, configs, experiment_log_dir, training_mode)
 
-if training_mode != "self_supervised":
+if training_mode not in ["ts_sd", "self_supervised"]:
     # Testing
     outs = model_evaluate(model, temporal_contr_model, test_dl, device, training_mode)
     total_loss, total_acc, pred_labels, true_labels = outs
