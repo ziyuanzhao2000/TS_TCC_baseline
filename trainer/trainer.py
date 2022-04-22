@@ -149,7 +149,8 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
     else:
         total_acc = torch.tensor(total_acc).mean()  # average acc
     print(normalize(probs, axis=1)[0:3])
-    scattered_trgs = np.put_along_axis(np.zeros((len(trgs), 3)), np.expand_dims(trgs.astype(int), axis=1), 1, axis=1)
+    scattered_trgs = np.zeros((len(trgs), 3))
+    np.put_along_axis(scattered_trgs, np.expand_dims(trgs.astype(int), axis=1), 1, axis=1)
     print(scattered_trgs)
     print(roc_auc_score(scattered_trgs, normalize(probs, axis=1), multi_class='ovr'))
     return total_loss, total_acc, outs, trgs
