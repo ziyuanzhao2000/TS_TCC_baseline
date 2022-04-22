@@ -4,14 +4,14 @@ class Config(object):
         self.input_channels = 1
         self.kernel_size = 8
         self.stride = 1
-        self.final_out_channels = 128
+        self.final_out_channels = 128 
 
         self.num_classes = 3
         self.dropout = 0.35
         self.features_len = 190
 
         # training configs
-        self.num_epoch = 40
+        self.num_epoch = 20
 
         
         # optimizer parameters
@@ -21,7 +21,7 @@ class Config(object):
 
         # data parameters
         self.drop_last = True
-        self.batch_size = 16 # small dataset
+        self.batch_size = 16# small dataset
 
         self.Context_Cont = Context_Cont_configs()
         self.TC = TC()
