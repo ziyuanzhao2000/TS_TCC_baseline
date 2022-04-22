@@ -36,7 +36,6 @@ for data_file_name, label in zip(data_file_names, labels):
 X = np.stack(tuple(X))
 X = (X - signal_min) / (signal_max - signal_min)
 y = np.array(y)
-print(X.shape, y.shape)
 
 # 6-2-2 split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
