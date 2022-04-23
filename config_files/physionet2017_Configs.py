@@ -4,7 +4,7 @@ class Config(object):
         self.input_channels = 1
         self.kernel_size = 8
         self.stride = 1
-        self.final_out_channels = 128
+        self.final_out_channels = 16
 
         self.num_classes = 4
         self.dropout = 0.35
