@@ -79,10 +79,10 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
                                      # task used in the ts_sd paper
             base_signal = aug1
             noisy_signal = aug2
-            print('hit ts_sd case in train model')
-            denoised_signal = temporal_contr_model(noisy_signal, mode='tune')
-            print(base_signal.shape, denoised_signal.shape)
-            exit(1)
+            denoised_signal = temporal_contr_model(noisy_signal)
+        elif training_mode == "ts_sd_finetune":
+            output = (temporal_contr_model(noisy_signal, mode='finetune'), None)
+
         else:
             output = model(data)
 
@@ -98,7 +98,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             loss = ((base_signal - denoised_signal)**2).mean(axis=ax)
 
         else: # supervised training or fine tuining
-            predictions, features = output
+            predictions, _ = output
             loss = criterion(predictions, labels)
             total_acc.append(labels.eq(predictions.detach().argmax(dim=1)).float().mean())
 

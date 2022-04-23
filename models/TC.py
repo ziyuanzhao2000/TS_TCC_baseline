@@ -94,6 +94,5 @@ class TS_SD(nn.Module):
         else:
             final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(concat)))
             flat = torch.reshape(final_conv, (final_conv.shape[0], -1))
-            print(final_conv.shape, flat.shape, self.logit(flat).shape)
             return self.logit(flat)
 
