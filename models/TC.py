@@ -86,15 +86,15 @@ class TS_SD(nn.Module):
             context = torch.bmm(attn, V.transpose(1,2)).transpose(1,2) # nb * fl * ts, same as QVK
             heads_out.append(context) # list of num_heads tensors of shape nb * fl * ts
 
-            # concat contexts in heads_out along feature dimension (axis = 1)
-            concat = torch.cat(heads_out, dim=1) # nb * (fl * num_heads) * ts
-            print(concat.shape, len(heads_out), heads_out[0].shape )
+        # concat contexts in heads_out along feature dimension (axis = 1)
+        concat = torch.cat(heads_out, dim=1) # nb * (fl * num_heads) * ts
+        print(concat.shape, len(heads_out), heads_out[0].shape )
 
-            if mode=='pretrain':
-                print(concat.transpose(1,2).shape)
-                return self.linear(concat.transpose(1,2)).transpose(1,2)
-            else:
-                final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(concat)))
-                flat = torch.reshape(final_conv, (final_conv.shape[0], -1))
-                return self.logit(flat)
+        if mode=='pretrain':
+            print(concat.transpose(1,2).shape)
+            return self.linear(concat.transpose(1,2)).transpose(1,2)
+        else:
+            final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(concat)))
+            flat = torch.reshape(final_conv, (final_conv.shape[0], -1))
+            return self.logit(flat)
 
