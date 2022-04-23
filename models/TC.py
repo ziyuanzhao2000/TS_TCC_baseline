@@ -70,7 +70,7 @@ class TS_SD(nn.Module):
         self.final_conv_1 = nn.Conv1d(self.feature_len, 32, kernel_size=8, stride=4)
         self.final_conv_2 = nn.Conv1d(32, 64, kernel_size=8, stride=4)
         self.final_conv_3 = nn.Conv1d(64, self.feature_len, kernel_size=8, stride=4)
-        self.logit = nn.Linear(200, self.n_classes)
+        self.logit = nn.Linear(176, self.n_classes)
 
     def forward(self, signal, mode="pretrain"):
         heads_out = []
@@ -88,10 +88,12 @@ class TS_SD(nn.Module):
 
             # concat contexts in heads_out along feature dimension (axis = 1)
             concat = torch.cat(heads_out, dim=1) # nb * (fl * num_heads) * ts
-            final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(concat)))
-            flat = torch.reshape(final_conv, (final_conv.shape[0], -1))
-            print(final_conv.shape, flat.shape)
 
-            exit(1)
-            return self.linear(concat.transpose(1,2))
+
+            if mode='pretrain':
+                return self.linear(concat.transpose(1,2)).transpose(1,2)
+            else:
+                final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(concat)))
+                flat = torch.reshape(final_conv, (final_conv.shape[0], -1))
+                return self.logit(flat)
 

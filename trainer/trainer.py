@@ -81,6 +81,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             noisy_signal = aug2
             print('hit ts_sd case in train model')
             denoised_signal = temporal_contr_model(noisy_signal)
+            print(base_signal.shape, denoised_signal.shape)
             exit(1)
         else:
             output = model(data)
