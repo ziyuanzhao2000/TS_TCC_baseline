@@ -87,7 +87,7 @@ class TS_SD(nn.Module):
             # concat contexts in heads_out along feature dimension (axis = 1)
             concat = torch.cat(heads_out, dim=1) # nb * (fl * num_heads) * ts
             final_conv = self.final_conv(concat)
-            flat = torch.reshape(final_conv, concat.shape[0], -1)
+            flat = torch.reshape(final_conv, (final_conv.shape[0], -1))
             print(final_conv.shape, flat.shape)
 
             exit(1)
