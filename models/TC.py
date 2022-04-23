@@ -90,7 +90,7 @@ class TS_SD(nn.Module):
             concat = torch.cat(heads_out, dim=1) # nb * (fl * num_heads) * ts
 
 
-            if mode='pretrain':
+            if mode=='pretrain':
                 return self.linear(concat.transpose(1,2)).transpose(1,2)
             else:
                 final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(concat)))
