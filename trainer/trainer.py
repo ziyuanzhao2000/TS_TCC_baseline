@@ -131,35 +131,35 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
         for data, labels, _, _ in test_dl:
             data, labels = data.float().to(device), labels.long().to(device)
 
-            if training_mode == "self_supervised":
+            if training_mode in ["self_supervised", "ts_sd"]:
                 pass
             else:
                 output = model(data)
 
             # compute loss
-            if training_mode != "self_supervised":
+            if training_mode not in ["self_supervised", "ts_sd"]:
                 predictions, features = output
                 loss = criterion(predictions, labels)
                 total_acc.append(labels.eq(predictions.detach().argmax(dim=1)).float().mean())
                 total_loss.append(loss.item())
 
-            if training_mode != "self_supervised":
                 pred = predictions.max(1, keepdim=True)[1]  # get the index of the max log-probability
                 outs = np.append(outs, pred.cpu().numpy())
                 exp_logits = np.exp(predictions.cpu().numpy())
                 probs.append(exp_logits / (1 + exp_logits))
                 trgs = np.append(trgs, labels.data.cpu().numpy())
-    if training_mode != "self_supervised":
+
+    if training_mode not in ["self_supervised", "ts_sd"]:
         total_loss = torch.tensor(total_loss).mean()  # average loss
     else:
         total_loss = 0
-    if training_mode == "self_supervised":
+    if training_mode in ["self_supervised", "ts_sd"]:
         total_acc = 0
         return total_loss, total_acc, [], []
     else:
         total_acc = torch.tensor(total_acc).mean()  # average acc
-    scattered_trgs = np.zeros((len(trgs), 3))
-    np.put_along_axis(scattered_trgs, np.expand_dims(trgs.astype(int), axis=1), 1, axis=1)
-    probs = np.vstack(tuple(probs))
-    print('auroc: ', roc_auc_score(scattered_trgs, normalize(probs, axis=1), multi_class='ovr'))
+        scattered_trgs = np.zeros((len(trgs), 3))
+        np.put_along_axis(scattered_trgs, np.expand_dims(trgs.astype(int), axis=1), 1, axis=1)
+        probs = np.vstack(tuple(probs))
+        print('auroc: ', roc_auc_score(scattered_trgs, normalize(probs, axis=1), multi_class='ovr'))
     return total_loss, total_acc, outs, trgs
