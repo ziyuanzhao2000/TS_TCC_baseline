@@ -69,7 +69,8 @@ class TS_SD(nn.Module):
         self.linear = nn.Linear(self.feature_len * self.num_heads, 1)
         self.final_conv = nn.Conv1d(self.feature_len, self.feature_len, kernel_size=8, stride=4)
         self.logit = nn.Linear(200, self.n_classes)
-    def forward(self, signal, mode):
+
+    def forward(self, signal, mode="pretrain"):
         heads_out = []
         signal.to(self.device)
         for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
