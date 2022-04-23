@@ -67,7 +67,7 @@ class TS_SD(nn.Module):
         self.conv_K_encoders = nn.ModuleList([nn.Conv1d(1, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.dim = np.sqrt(1500)
         self.linear = nn.Linear(self.feature_len * self.num_heads, 1)
-        self.final_conv_1 = nn.Conv1d(self.feature_len, 32, kernel_size=8, stride=4)
+        self.final_conv_1 = nn.Conv1d(self.feature_len * self.num_heads, 32, kernel_size=8, stride=4)
         self.final_conv_2 = nn.Conv1d(32, 64, kernel_size=8, stride=4)
         self.final_conv_3 = nn.Conv1d(64, self.feature_len, kernel_size=8, stride=4)
         self.logit = nn.Linear(176, self.n_classes)
