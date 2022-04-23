@@ -60,13 +60,16 @@ class TS_SD(nn.Module):
         self.num_heads = 12 # to prevent reading another config file, we will hardcode this (it's a baseline exp anyway)
         self.kernel_sizes = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
         self.feature_len = 8
+        self.n_classes = 3
         self.device = device
         self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(1, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.conv_V_encoders = nn.ModuleList([nn.Conv1d(1, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.conv_K_encoders = nn.ModuleList([nn.Conv1d(1, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.dim = np.sqrt(1500)
-
-    def forward(self, signal):
+        self.linear = nn.Linear(self.feature_len * self.num_heads, 1)
+        self.final_conv = nn.Conv1d(self.feature_len, self.feature_len, kernel_size=8, stride=4)
+        self.logit = nn.Linear(200, self.n_classes)
+    def forward(self, signal, mode):
         heads_out = []
         signal.to(self.device)
         for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
@@ -77,7 +80,15 @@ class TS_SD(nn.Module):
             # Q.T = nb * ts * fl ; K = nb * fl * ts, score = nb * ts * ts
             score = torch.bmm(Q.transpose(1,2), K) / self.dim
             attn = F.softmax(score, -1)
-            print(attn)
             context = torch.bmm(attn, V.transpose(1,2)).transpose(1,2) # nb * fl * ts, same as QVK
-            heads_out.append(context)
-            print(context.shape)
+            heads_out.append(context) # list of num_heads tensors of shape nb * fl * ts
+
+            # concat contexts in heads_out along feature dimension (axis = 1)
+            concat = torch.cat(heads_out, dim=1) # nb * (fl * num_heads) * ts
+            final_conv = self.final_conv(concat)
+            flat = torch.reshape(final_conv, concat.shape[0], -1)
+            print(final_conv.shape, flat.shape)
+
+            exit(1)
+            return self.linear(concat.transpose(1,2))
+
