@@ -4,7 +4,7 @@ class Config(object):
         self.input_channels = 1
         self.kernel_size = 8
         self.stride = 1
-        self.final_out_channels = 16
+        self.final_out_channels = 128
 
         self.num_classes = 4
         self.dropout = 0.35
@@ -21,7 +21,7 @@ class Config(object):
 
         # data parameters
         self.drop_last = True
-        self.batch_size = 128
+        self.batch_size = 16
 
         self.Context_Cont = Context_Cont_configs()
         self.TC = TC()
