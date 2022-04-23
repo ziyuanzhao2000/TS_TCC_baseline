@@ -45,7 +45,6 @@ def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, t
 
 
 def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, criterion, train_loader, config, device, training_mode):
-    print('start to train model')
     total_loss = []
     total_acc = []
     model.train()
