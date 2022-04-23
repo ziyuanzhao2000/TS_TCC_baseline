@@ -91,6 +91,7 @@ class TS_SD(nn.Module):
 
 
             if mode=='pretrain':
+                print(concat.transpose(1,2).shape)
                 return self.linear(concat.transpose(1,2)).transpose(1,2)
             else:
                 final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(concat)))
