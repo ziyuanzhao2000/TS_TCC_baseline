@@ -80,7 +80,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             base_signal = aug1
             noisy_signal = aug2
             print('hit ts_sd case in train model')
-            denoised_signal = temporal_contr_model(noisy_signal)
+            denoised_signal = temporal_contr_model(noisy_signal, mode='tune')
             print(base_signal.shape, denoised_signal.shape)
             exit(1)
         else:

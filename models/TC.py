@@ -75,7 +75,7 @@ class TS_SD(nn.Module):
     def forward(self, signal, mode="pretrain"):
         heads_out = []
         signal.to(self.device)
-        for n, Qe, Ve, Ke in zip(range(12),self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
+        for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
             print(n)
             Q = Qe(signal)
             V = Ve(signal)
@@ -89,13 +89,12 @@ class TS_SD(nn.Module):
 
         # concat contexts in heads_out along feature dimension (axis = 1)
         concat = torch.cat(heads_out, dim=1) # nb * (fl * num_heads) * ts
-        print(concat.shape, len(heads_out), heads_out[0].shape )
 
         if mode=='pretrain':
-            print(concat.transpose(1,2).shape)
             return self.linear(concat.transpose(1,2)).transpose(1,2)
         else:
             final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(concat)))
             flat = torch.reshape(final_conv, (final_conv.shape[0], -1))
+            print(final_conv.shape, flat.shape, self.logit(flat).shape)
             return self.logit(flat)
 
