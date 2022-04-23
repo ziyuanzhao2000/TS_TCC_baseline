@@ -88,7 +88,7 @@ class TS_SD(nn.Module):
 
             # concat contexts in heads_out along feature dimension (axis = 1)
             concat = torch.cat(heads_out, dim=1) # nb * (fl * num_heads) * ts
-
+            print(concat.shape)
 
             if mode=='pretrain':
                 print(concat.transpose(1,2).shape)
