@@ -76,7 +76,6 @@ class TS_SD(nn.Module):
         heads_out = []
         signal.to(self.device)
         for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
-            print(n)
             Q = Qe(signal)
             V = Ve(signal)
             K = Ke(signal)
