@@ -21,7 +21,7 @@ class Config(object):
 
         # data parameters
         self.drop_last = True
-        self.batch_size = 128
+        self.batch_size = 20
 
         self.Context_Cont = Context_Cont_configs()
         self.TC = TC()
