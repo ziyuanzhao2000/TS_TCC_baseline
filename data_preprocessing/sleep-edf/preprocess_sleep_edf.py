@@ -82,11 +82,17 @@ def combine_to_subjects(root_dir, output_dir):
             y2 = np.load(files_dict[i][1])["y"].tolist()
             y1.extend(y2)
             y1 = np.array(y1)
-            print(new_x.shape, y1.shape)
+
+            pid1 = np.load(files_dict[i][0])["pid"].tolist()
+            pid2 = np.load(files_dict[i][1])["pid"].tolist()
+            pid1.extend(pid2)
+            pid1 = np.array(pid1)
+            print(new_x.shape, y1.shape, pid1.shape)
         else:
             new_x = np.load(files_dict[i][0])["x"]
             y1 = np.load(files_dict[i][0])["y"]
-            print(new_x.shape, y1.shape)
+            pid1 = np.load(files_dict[i][0])["pid"]
+            print(new_x.shape, y1.shape, pid1.shape)
 
         # Saving as numpy files
         # print(file, x_values.shape[0], y_values.shape[0])
@@ -94,6 +100,7 @@ def combine_to_subjects(root_dir, output_dir):
         save_dict = {
             "x": new_x,
             "y": y1,
+            "pid": pid1,
             "fs": sampling_rate
         }
         np.savez(os.path.join(output_dir, filename), **save_dict)
@@ -161,6 +168,7 @@ def main():
         # Generate label and remove indices
         remove_idx = []    # indicies of the data that will be removed
         labels = []        # indicies of the data that have labels
+        pids = []
         label_idx = []
 
         for a in ann[0]:
@@ -174,6 +182,7 @@ def main():
                 print(duration_epoch)
                 label_epoch = np.ones(duration_epoch, dtype=np.int) * label
                 labels.append(label_epoch)
+                pids.append([i] * duration_epoch)
                 idx = int(onset_sec * sampling_rate) + np.arange(duration_sec * sampling_rate, dtype=np.int)
                 label_idx.append(idx)
 
@@ -187,7 +196,7 @@ def main():
                 print ("Remove onset:{}, duration:{}, label:{} ({})".format(
                     onset_sec, duration_sec, label, ann_str))
         labels = np.hstack(labels)
-
+        pid = np.hstack(pids)
         print ("before remove unwanted: {}".format(np.arange(len(raw_ch_df)).shape))
         if len(remove_idx) > 0:
             remove_idx = np.hstack(remove_idx)
@@ -214,6 +223,7 @@ def main():
                 if n_label_trims!=0:
                     # select_idx = select_idx[:-n_trims]
                     labels = labels[:-n_label_trims]
+                    pid = pid[:-n_label_trims]
             print("after remove extra labels: {}, {}".format(select_idx.shape, labels.shape))
 
         # Remove movement and unknown stages if any
@@ -227,9 +237,10 @@ def main():
         # Get epochs and their corresponding labels
         x = np.asarray(np.split(raw_ch[:n_epochs * int(EPOCH_SEC_SIZE * sampling_rate)], n_epochs)).astype(np.float32)
         y = labels.astype(np.int32)
+        pid = pid.astype(np.int32)
         # len(x) may != len(y) because of how we cropped the tails from
 
-        assert len(x) == len(y)
+        assert len(x) == len(y) == len(pid)
 
         # Select on sleep periods
         w_edge_mins = 30
@@ -242,6 +253,7 @@ def main():
         print("Data before selection: {}, {}".format(x.shape, y.shape))
         x = x[select_idx]
         y = y[select_idx]
+        pid = pid[select_idx]
         print("Data after selection: {}, {}".format(x.shape, y.shape))
 
         # Save
@@ -249,6 +261,7 @@ def main():
         save_dict = {
             "x": x,
             "y": y,
+            "pid": pid,
             "fs": sampling_rate,
             "ch_label": select_ch,
             "header_raw": h_raw,
