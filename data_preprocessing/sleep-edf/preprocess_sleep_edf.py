@@ -53,7 +53,7 @@ ann2label = {
     "Movement time": 5
 }
 
-EPOCH_SEC_SIZE = 30
+EPOCH_SEC_SIZE = 2.
 
 
 def combine_to_subjects(root_dir, output_dir):
@@ -134,7 +134,7 @@ def main():
     for i in range(len(psg_fnames)):
         raw = read_raw_edf(psg_fnames[i], preload=True, stim_channel=None)
         sampling_rate = raw.info['sfreq']
-        raw_ch_df = raw.to_data_frame(scaling_time=100.0)[select_ch]
+        raw_ch_df = raw.to_data_frame()[select_ch]
         raw_ch_df = raw_ch_df.to_frame()
         raw_ch_df.set_index(np.arange(len(raw_ch_df)))
 
@@ -162,6 +162,7 @@ def main():
         remove_idx = []    # indicies of the data that will be removed
         labels = []        # indicies of the data that have labels
         label_idx = []
+
         for a in ann[0]:
             onset_sec, duration_sec, ann_char = a
             ann_str = "".join(ann_char)
@@ -169,7 +170,8 @@ def main():
             if label != UNKNOWN:
                 if duration_sec % EPOCH_SEC_SIZE != 0:
                     raise Exception("Something wrong")
-                duration_epoch = int(duration_sec / EPOCH_SEC_SIZE)
+                duration_epoch = int(duration_sec // EPOCH_SEC_SIZE)
+                print(duration_epoch)
                 label_epoch = np.ones(duration_epoch, dtype=np.int) * label
                 labels.append(label_epoch)
                 idx = int(onset_sec * sampling_rate) + np.arange(duration_sec * sampling_rate, dtype=np.int)
@@ -220,11 +222,12 @@ def main():
         # Verify that we can split into 30-s epochs
         if len(raw_ch) % (EPOCH_SEC_SIZE * sampling_rate) != 0:
             raise Exception("Something wrong")
-        n_epochs = len(raw_ch) / (EPOCH_SEC_SIZE * sampling_rate)
+        n_epochs = int(len(raw_ch) // int(EPOCH_SEC_SIZE * sampling_rate))
 
         # Get epochs and their corresponding labels
-        x = np.asarray(np.split(raw_ch, n_epochs)).astype(np.float32)
+        x = np.asarray(np.split(raw_ch[:n_epochs * int(EPOCH_SEC_SIZE * sampling_rate)], n_epochs)).astype(np.float32)
         y = labels.astype(np.int32)
+        # len(x) may != len(y) because of how we cropped the tails from
 
         assert len(x) == len(y)
 
