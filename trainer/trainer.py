@@ -74,7 +74,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             zis = temp_cont_lstm_feat1 
             zjs = temp_cont_lstm_feat2 
 
-        if training_mode == "ts_sd": # note, in config files, just use gaussian noise, this is to match the denoising
+        elif training_mode == "ts_sd": # note, in config files, just use gaussian noise, this is to match the denoising
                                      # task used in the ts_sd paper
             base_signal = aug1
             noisy_signal = aug2
@@ -82,7 +82,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
         elif training_mode == "ts_sd_finetune":
             output = (temporal_contr_model(noisy_signal, mode='finetune'), None)
 
-        else:
+        else: # supervised
             output = model(data)
 
         # compute loss
