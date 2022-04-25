@@ -3,7 +3,7 @@ class Config(object):
         # model configs
         self.input_channels = 1
         self.kernel_size = 25 # 8
-        self.stride = 1
+        self.stride = 3
         self.final_out_channels = 128
 
         self.num_classes = 2
