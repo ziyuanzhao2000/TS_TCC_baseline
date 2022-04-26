@@ -12,7 +12,7 @@ from models.loss import NTXentLoss
 
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import normalize
-from utils import scattered_trgs, to_idx
+from utils import scatter_numpy, to_idx
 
 def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, train_dl, valid_dl, test_dl, device, logger, config, experiment_log_dir, training_mode):
     # Start training
