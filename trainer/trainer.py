@@ -120,7 +120,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
     pred = pred_prob.argmax(dim=1)
     target = labels
     target_prob = np.zeros((len(target), model.n_classes))
-    scatter_numpy(target_prob, 1, to_idx(target.to("cpu")), 1)
+    scatter_numpy(target_prob, 1, to_idx(target.to("cpu").numpy()), 1)
 
     metrics_dict = {}
     metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
@@ -183,7 +183,7 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
         pred = pred_prob.argmax(dim=1)
         target = labels
         target_prob = np.zeros((len(target), model.n_classes))
-        scatter_numpy(target_prob, 1, to_idx(target.to("cpu")), 1)
+        scatter_numpy(target_prob, 1, to_idx(target.to("cpu").numpy()), 1)
 
         metrics_dict = {}
         metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
