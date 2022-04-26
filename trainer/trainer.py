@@ -118,7 +118,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
 
     pred_prob = predictions.detach().to("cpu")
     pred = pred_prob.argmax(dim=1)
-    target = labels
+    target = labels.to("cpu")
     target_prob = np.zeros((len(target), model.n_classes))
     scatter_numpy(target_prob, 1, to_idx(target.to("cpu").numpy()), 1)
 
@@ -181,7 +181,7 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
 
         pred_prob = predictions.detach().to("cpu")
         pred = pred_prob.argmax(dim=1)
-        target = labels
+        target = labels.to("cpu")
         target_prob = np.zeros((len(target), model.n_classes))
         scatter_numpy(target_prob, 1, to_idx(target.to("cpu").numpy()), 1)
 
