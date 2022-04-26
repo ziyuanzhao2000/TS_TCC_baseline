@@ -12,6 +12,7 @@ from models.loss import NTXentLoss
 
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import normalize
+from utils import scattered_trgs, to_idx
 
 def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, train_dl, valid_dl, test_dl, device, logger, config, experiment_log_dir, training_mode):
     # Start training
@@ -22,14 +23,16 @@ def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, t
 
     for epoch in range(1, config.num_epoch + 1):
         # Train and validate
-        train_loss, train_acc = model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, criterion, train_dl, config, device, training_mode)
-        valid_loss, valid_acc, _, _ = model_evaluate(model, temporal_contr_model, valid_dl, device, training_mode)
+        train_loss, train_acc, train_metrics = model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, criterion, train_dl, config, device, training_mode)
+        valid_loss, valid_acc, _, _, val_metrics = model_evaluate(model, temporal_contr_model, valid_dl, device, training_mode)
         if training_mode not in ['ts_sd','self_supervised']:  # use scheduler in all other modes.
             scheduler.step(valid_loss)
 
         logger.debug(f'\nEpoch : {epoch}\n'
                      f'Train Loss     : {train_loss:.4f}\t | \tTrain Accuracy     : {train_acc:2.4f}\n'
-                     f'Valid Loss     : {valid_loss:.4f}\t | \tValid Accuracy     : {valid_acc:2.4f}')
+                     f'Valid Loss     : {valid_loss:.4f}\t | \tValid Accuracy     : {valid_acc:2.4f}\n'
+                     f'{train_metrics}\n'
+                     f'{val_metrics}')
 
     os.makedirs(os.path.join(experiment_log_dir, "saved_models"), exist_ok=True)
     chkpoint = {'model_state_dict': model.state_dict(), 'temporal_contr_model_state_dict': temporal_contr_model.state_dict()}
@@ -112,7 +115,19 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
         total_acc = 0
     else:
         total_acc = torch.tensor(total_acc).mean()
-    return total_loss, total_acc
+
+    pred_prob = predictions.detach()
+    pred = pred_prob.argmax(dim=1)
+    target = labels
+    target_prob = scattered_trgs(target, 1, to_idx(target))
+
+    metrics_dict = {}
+    metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
+    metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
+    metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
+    metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target, pred, multi_class='ovr')
+    metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target, pred, multi_class='macro')
+    return total_loss, total_acc, metrics_dict
 
 
 def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
@@ -155,11 +170,23 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
         total_loss = 0
     if training_mode in ["self_supervised", "ts_sd"]:
         total_acc = 0
-        return total_loss, total_acc, [], []
+        return total_loss, total_acc, [], [], {}
     else:
         total_acc = torch.tensor(total_acc).mean()  # average acc
-        scattered_trgs = np.zeros((len(trgs), 3))
-        np.put_along_axis(scattered_trgs, np.expand_dims(trgs.astype(int), axis=1), 1, axis=1)
-        probs = np.vstack(tuple(probs))
-        print('auroc: ', roc_auc_score(scattered_trgs, normalize(probs, axis=1), multi_class='ovr'))
-    return total_loss, total_acc, outs, trgs
+#         scattered_trgs = np.zeros((len(trgs), 3))
+#         np.put_along_axis(scattered_trgs, np.expand_dims(trgs.astype(int), axis=1), 1, axis=1)
+#         probs = np.vstack(tuple(probs))
+#         print('auroc: ', roc_auc_score(scattered_trgs, normalize(probs, axis=1), multi_class='ovr'))
+
+        pred_prob = predictions.detach()
+        pred = pred_prob.argmax(dim=1)
+        target = labels
+        target_prob = scattered_trgs(target, 1, to_idx(target))
+
+        metrics_dict = {}
+        metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
+        metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
+        metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
+        metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target, pred, multi_class='ovr')
+        metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target, pred, multi_class='macro')
+        return total_loss, total_acc, outs, trgs, metrics_dict
