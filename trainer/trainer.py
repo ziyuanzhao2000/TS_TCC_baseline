@@ -116,7 +116,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
     else:
         total_acc = torch.tensor(total_acc).mean()
 
-    pred_prob = predictions.detach()
+    pred_prob = predictions.detach().to("cpu").numpy()
     pred = pred_prob.argmax(dim=1)
     target = labels
     target_prob = np.zeros((len(target), model.n_classes))
@@ -179,7 +179,7 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
 #         probs = np.vstack(tuple(probs))
 #         print('auroc: ', roc_auc_score(scattered_trgs, normalize(probs, axis=1), multi_class='ovr'))
 
-        pred_prob = predictions.detach()
+        pred_prob = predictions.detach().to("cpu").numpy()
         pred = pred_prob.argmax(dim=1)
         target = labels
         target_prob = np.zeros((len(target), model.n_classes))
