@@ -120,7 +120,9 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
         total_acc = torch.tensor(total_acc).mean()
     metrics_dict = {}
     total_preds = torch.vstack(tuple(total_preds))
-    total_labels = torch.concatenate(tuple(total_labels))
+    total_labels = torch.cat(tuple(total_labels))
+    print(total_preds)
+    print(total_labels)
     if len(total_preds) > 0:
         pred_prob = total_preds
         pred = pred_prob.argmax(dim=1)
@@ -193,7 +195,7 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
 
         metrics_dict = {}
         total_preds = torch.vstack(tuple(total_preds))
-        total_labels = torch.concatenate(tuple(total_labels))
+        total_labels = torch.cat(tuple(total_labels))
         if len(total_preds) > 0:
             pred_prob = total_preds
             pred = pred_prob.argmax(dim=1)
