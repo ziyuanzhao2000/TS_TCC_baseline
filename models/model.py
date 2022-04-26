@@ -3,7 +3,7 @@ from torch import nn
 class base_Model(nn.Module):
     def __init__(self, configs):
         super(base_Model, self).__init__()
-
+        self.n_classes = configs.num_classes
         self.conv_block1 = nn.Sequential(
             nn.Conv1d(configs.input_channels, 32, kernel_size=configs.kernel_size,
                       stride=configs.stride, bias=False, padding=(configs.kernel_size//2)),
