@@ -122,13 +122,13 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
     target = labels.to("cpu")
     target_prob = torch.zeros((len(target), model.n_classes))
     torch.scatter(target_prob, 1, to_idx(target.to("cpu")), 1)
-
+    print(pred.shape, target.shape)
     metrics_dict = {}
     metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
     metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
     metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
-    metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target, pred, multi_class='ovr')
-    metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target, pred)
+    metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target_prob, pred_prob, multi_class='ovr')
+    metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target_prob, pred_prob)
     return total_loss, total_acc, metrics_dict
 
 
@@ -190,6 +190,6 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
         metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
         metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
         metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
-        metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target, pred, multi_class='ovr')
-        metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target, pred)
+        metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target_prob, pred_prob, multi_class='ovr')
+        metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target_prob, pred_prob)
         return total_loss, total_acc, outs, trgs, metrics_dict
