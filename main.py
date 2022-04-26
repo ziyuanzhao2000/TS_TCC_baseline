@@ -151,7 +151,8 @@ Trainer(model, temporal_contr_model, model_optimizer, temporal_contr_optimizer, 
 if training_mode not in ["ts_sd", "self_supervised"]:
     # Testing
     outs = model_evaluate(model, temporal_contr_model, test_dl, device, training_mode)
-    total_loss, total_acc, pred_labels, true_labels = outs
+    total_loss, total_acc, pred_labels, true_labels, metrics = outs
     _calc_metrics(pred_labels, true_labels, experiment_log_dir, args.home_path)
+    print(metrics)
 
 logger.debug(f"Training time is : {datetime.now()-start_time}")
