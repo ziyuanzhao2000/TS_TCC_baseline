@@ -52,8 +52,10 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
     total_acc = []
     model.train()
     temporal_contr_model.train()
-
+    total_preds = []
+    total_labels = []
     for batch_idx, (data, labels, aug1, aug2) in enumerate(train_loader):
+        total_labels.append(labels.to('cpu'))
         # send to device
         data, labels = data.float().to(device), labels.long().to(device)
         aug1, aug2 = aug1.float().to(device), aug2.float().to(device)
@@ -101,6 +103,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
 
         else: # supervised training or fine tuining
             predictions, _ = output
+            total_preds.append(predictions.detach().to('cpu') )
             loss = criterion(predictions, labels)
             total_acc.append(labels.eq(predictions.detach().argmax(dim=1)).float().mean())
 
@@ -115,17 +118,25 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
         total_acc = 0
     else:
         total_acc = torch.tensor(total_acc).mean()
-
-    pred_prob = predictions.detach().to("cpu")
-    pred = pred_prob.argmax(dim=1)
-    target = labels.to("cpu")
-    target_prob = F.one_hot(target, num_classes=model.n_classes)
     metrics_dict = {}
-    metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
-    metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
-    metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
-    metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target_prob, pred_prob, multi_class='ovr')
-    metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target_prob, pred_prob)
+    total_preds = torch.vstack(tuple(total_preds))
+    total_labels = torch.concatenate(tuple(total_labels))
+    if len(total_preds) > 0:
+        pred_prob = total_preds
+        pred = pred_prob.argmax(dim=1)
+        target = total_labels
+        target_prob = F.one_hot(target, num_classes=model.n_classes)
+        metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
+        metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
+        metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
+        metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target_prob, pred_prob, multi_class='ovr')
+        metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target_prob, pred_prob)
+    else:
+        metrics_dict['Precision'] = None
+        metrics_dict['Recall'] = None
+        metrics_dict['F1'] = None
+        metrics_dict['AUROC'] = None
+        metrics_dict['AUPRC'] = None
     return total_loss, total_acc, metrics_dict
 
 
@@ -140,9 +151,11 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
     outs = np.array([])
     probs = []
     trgs = np.array([])
-
+    total_preds = []
+    total_labels = []
     with torch.no_grad():
         for data, labels, _, _ in test_dl:
+            total_labels.append(labels.to('cpu'))
             data, labels = data.float().to(device), labels.long().to(device)
 
             if training_mode in ["self_supervised", "ts_sd"]:
@@ -153,6 +166,7 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
             # compute loss
             if training_mode not in ["self_supervised", "ts_sd"]:
                 predictions, features = output
+                total_preds.append(predictions.detach().to('cpu') )
                 loss = criterion(predictions, labels)
                 total_acc.append(labels.eq(predictions.detach().argmax(dim=1)).float().mean())
                 total_loss.append(loss.item())
@@ -177,15 +191,23 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
 #         probs = np.vstack(tuple(probs))
 #         print('auroc: ', roc_auc_score(scattered_trgs, normalize(probs, axis=1), multi_class='ovr'))
 
-        pred_prob = predictions.detach().to("cpu")
-        pred = pred_prob.argmax(dim=1)
-        target = labels.to("cpu")
-        target_prob = F.one_hot(target, num_classes=model.n_classes)
-
         metrics_dict = {}
-        metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
-        metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
-        metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
-        metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target_prob, pred_prob, multi_class='ovr')
-        metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target_prob, pred_prob)
+        total_preds = torch.vstack(tuple(total_preds))
+        total_labels = torch.concatenate(tuple(total_labels))
+        if len(total_preds) > 0:
+            pred_prob = total_preds
+            pred = pred_prob.argmax(dim=1)
+            target = total_labels
+            target_prob = F.one_hot(target, num_classes=model.n_classes)
+            metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
+            metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
+            metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
+            metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target_prob, pred_prob, multi_class='ovr')
+            metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target_prob, pred_prob)
+        else:
+            metrics_dict['Precision'] = None
+            metrics_dict['Recall'] = None
+            metrics_dict['F1'] = None
+            metrics_dict['AUROC'] = None
+            metrics_dict['AUPRC'] = None
         return total_loss, total_acc, outs, trgs, metrics_dict
