@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from models.loss import NTXentLoss
-
+import sklearn
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import normalize
 from utils import scatter_numpy, to_idx
