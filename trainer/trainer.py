@@ -192,9 +192,9 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
 #         print('auroc: ', roc_auc_score(scattered_trgs, normalize(probs, axis=1), multi_class='ovr'))
 
         metrics_dict = {}
-        total_preds = torch.vstack(tuple(total_preds))
-        total_labels = torch.cat(tuple(total_labels))
         if len(total_preds) > 0:
+            total_preds = torch.vstack(tuple(total_preds))
+            total_labels = torch.cat(tuple(total_labels))
             pred_prob = total_preds
             pred = pred_prob.argmax(dim=1)
             target = total_labels
