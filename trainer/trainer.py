@@ -116,11 +116,11 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
     else:
         total_acc = torch.tensor(total_acc).mean()
 
-    pred_prob = predictions.detach().to("cpu").numpy()
+    pred_prob = predictions.detach().to("cpu")
     pred = pred_prob.argmax(dim=1)
     target = labels
     target_prob = np.zeros((len(target), model.n_classes))
-    scatter_numpy(target_prob, 1, to_idx(target.to("cpu").numpy()), 1)
+    scatter_numpy(target_prob, 1, to_idx(target.to("cpu")), 1)
 
     metrics_dict = {}
     metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
@@ -179,11 +179,11 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
 #         probs = np.vstack(tuple(probs))
 #         print('auroc: ', roc_auc_score(scattered_trgs, normalize(probs, axis=1), multi_class='ovr'))
 
-        pred_prob = predictions.detach().to("cpu").numpy()
+        pred_prob = predictions.detach().to("cpu")
         pred = pred_prob.argmax(dim=1)
         target = labels
         target_prob = np.zeros((len(target), model.n_classes))
-        scatter_numpy(target_prob, 1, to_idx(target.to("cpu").numpy()), 1)
+        scatter_numpy(target_prob, 1, to_idx(target.to("cpu")), 1)
 
         metrics_dict = {}
         metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
