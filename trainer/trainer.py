@@ -119,9 +119,9 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
     else:
         total_acc = torch.tensor(total_acc).mean()
     metrics_dict = {}
-    total_preds = torch.vstack(tuple(total_preds))
-    total_labels = torch.cat(tuple(total_labels))
     if len(total_preds) > 0:
+        total_preds = torch.vstack(tuple(total_preds))
+        total_labels = torch.cat(tuple(total_labels))
         pred_prob = total_preds
         pred = pred_prob.argmax(dim=1)
         target = total_labels
