@@ -127,7 +127,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
     metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
     metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
     metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target, pred, multi_class='ovr')
-    metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target, pred, multi_class='macro')
+    metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target, pred)
     return total_loss, total_acc, metrics_dict
 
 
@@ -190,5 +190,5 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
         metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
         metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
         metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target, pred, multi_class='ovr')
-        metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target, pred, multi_class='macro')
+        metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target, pred)
         return total_loss, total_acc, outs, trgs, metrics_dict
