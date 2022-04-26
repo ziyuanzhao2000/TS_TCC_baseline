@@ -12,7 +12,6 @@ from models.loss import NTXentLoss
 import sklearn
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import normalize
-from utils import scatter_numpy, to_idx
 
 def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, train_dl, valid_dl, test_dl, device, logger, config, experiment_log_dir, training_mode):
     # Start training
@@ -120,9 +119,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
     pred_prob = predictions.detach().to("cpu")
     pred = pred_prob.argmax(dim=1)
     target = labels.to("cpu")
-    target_prob = torch.zeros((len(target), model.n_classes))
-    torch.scatter(target_prob, 1, to_idx(target.to("cpu")), 1)
-    print(pred.shape, target.shape)
+    target_prob = F.one_hot(target, num_classes=model.n_classes)
     metrics_dict = {}
     metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
     metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
@@ -183,8 +180,7 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
         pred_prob = predictions.detach().to("cpu")
         pred = pred_prob.argmax(dim=1)
         target = labels.to("cpu")
-        target_prob = torch.zeros((len(target), model.n_classes))
-        torch.scatter(target_prob, 1, to_idx(target.to("cpu")), 1)
+        target_prob = F.one_hot(target, num_classes=model.n_classes)
 
         metrics_dict = {}
         metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
