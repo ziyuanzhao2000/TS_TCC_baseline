@@ -41,8 +41,9 @@ def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, t
     if training_mode not in ["ts_sd", "self_supervised"]:  # no need to run the evaluation for self-supervised mode.
         # evaluate on the test set
         logger.debug('\nEvaluate on the Test set:')
-        test_loss, test_acc, _, _ = model_evaluate(model, temporal_contr_model, test_dl, device, training_mode)
-        logger.debug(f'Test loss      :{test_loss:0.4f}\t | Test Accuracy      : {test_acc:0.4f}')
+        test_loss, test_acc, _, _, metrics = model_evaluate(model, temporal_contr_model, test_dl, device, training_mode)
+        logger.debug(f'Test loss      :{test_loss:0.4f}\t | Test Accuracy      : {test_acc:0.4f}\n'
+                     f'{metrics}')
 
     logger.debug("\n################## Training is Done! #########################")
 
