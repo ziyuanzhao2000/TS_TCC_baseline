@@ -65,7 +65,7 @@ def scatter_numpy(self, dim, index, src):
     return self
 
 def to_idx(tensor):
-    return torch.unsqueeze(tensor.int())
+    return torch.unsqueeze(tensor.int(), dim=1)
 
 def set_requires_grad(model, dict_, requires_grad=True):
     for param in model.named_parameters():
