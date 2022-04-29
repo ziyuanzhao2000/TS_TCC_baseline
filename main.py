@@ -110,7 +110,7 @@ if training_mode == "ts_sd_finetune":
     chkpoint = torch.load(os.path.join(load_from, "ckp_last.pt"), map_location=device)
     pretrained_dict = chkpoint["model_state_dict"]
     model_dict = temporal_contr_model.state_dict()
-    del_list = ['logit','logits']
+    del_list = ['logit']
     pretrained_dict_copy = pretrained_dict.copy()
     for i in pretrained_dict_copy.keys():
         for j in del_list:
