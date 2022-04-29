@@ -106,7 +106,7 @@ if training_mode == "fine_tune":
 
 if training_mode == "ts_sd_finetune":
     # load saved model of this experiment
-    load_from = os.path.join(os.path.join(logs_save_dir, experiment_description, run_description, f"self_supervised_seed_{SEED}", "saved_models"))
+    load_from = os.path.join(os.path.join(logs_save_dir, experiment_description, run_description, f"ts_sd_seed_{SEED}", "saved_models"))
     chkpoint = torch.load(os.path.join(load_from, "ckp_last.pt"), map_location=device)
     pretrained_dict = chkpoint["model_state_dict"]
     model_dict = model.state_dict()
