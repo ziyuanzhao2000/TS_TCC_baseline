@@ -101,7 +101,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
 
         elif training_mode == "ts_sd":
             #print(base_signal - denoised_signal)
-            loss = ((base_signal - denoised_signal)**2).mean()
+            loss = 100 * ((base_signal - denoised_signal)**2).mean()
 
         else: # supervised training or fine tuining
             predictions, _ = output
