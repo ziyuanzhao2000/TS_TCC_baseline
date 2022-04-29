@@ -84,7 +84,7 @@ logger.debug("Data loaded ...")
 
 # Load Model
 model = base_Model(configs).to(device)
-if training_mode == "ts_sd":
+if training_mode == ["ts_sd", "ts_sd_finetune"]:
     temporal_contr_model = TS_SD(configs,device).to(device)
 else:
     temporal_contr_model = TC(configs, device).to(device)
@@ -101,6 +101,15 @@ if training_mode == "fine_tune":
         for j in del_list:
             if j in i:
                 del pretrained_dict[i]
+    model_dict.update(pretrained_dict)
+    model.load_state_dict(model_dict)
+
+if training_mode == "ts_sd_finetune":
+    # load saved model of this experiment
+    load_from = os.path.join(os.path.join(logs_save_dir, experiment_description, run_description, f"self_supervised_seed_{SEED}", "saved_models"))
+    chkpoint = torch.load(os.path.join(load_from, "ckp_last.pt"), map_location=device)
+    pretrained_dict = chkpoint["model_state_dict"]
+    model_dict = model.state_dict()
     model_dict.update(pretrained_dict)
     model.load_state_dict(model_dict)
 
