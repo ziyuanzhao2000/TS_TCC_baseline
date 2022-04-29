@@ -12,6 +12,7 @@ from models.loss import NTXentLoss
 import sklearn
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import normalize
+from tqdm import tqdm
 
 def Trainer(model, temporal_contr_model, model_optimizer, temp_cont_optimizer, train_dl, valid_dl, test_dl, device, logger, config, experiment_log_dir, training_mode):
     # Start training
@@ -54,7 +55,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
     temporal_contr_model.train()
     total_preds = []
     total_labels = []
-    for batch_idx, (data, labels, aug1, aug2) in enumerate(train_loader):
+    for batch_idx, (data, labels, aug1, aug2) in tqdm(enumerate(train_loader)):
         total_labels.append(labels.to('cpu'))
         # send to device
         data, labels = data.float().to(device), labels.long().to(device)
