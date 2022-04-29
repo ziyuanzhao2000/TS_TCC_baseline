@@ -5,7 +5,7 @@ class base_Model(nn.Module):
         super(base_Model, self).__init__()
         self.n_classes = configs.num_classes
         self.conv_block1 = nn.Sequential(
-            nn.Conv1d(configs.input_channels, 32, kernel_size=configs.kernel_size,
+            nn.Conv1d(in_channels=config.input_channels, out_channels=32, kernel_size=configs.kernel_size,
                       stride=configs.stride, bias=False, padding=(configs.kernel_size//2)),
             nn.BatchNorm1d(32),
             nn.ReLU(),
