@@ -11,20 +11,16 @@ def DataTransform(sample, config):
     return weak_aug, strong_aug
 
 window_len = 1500
-
+sub_len = int(0.7 * window_len)
+last_time_idx = window_len - sub_len
+noise_mag = 0.2
 def jitter(x, sigma=0.8):
     # https://arxiv.org/pdf/1706.00527.pdf
     xtilde = x.clone().detach()
     d1, d2, _ = xtilde.shape
     for i in range(d1): # add noise to a segment of each sample at independently random locations
-        begin, end = 0, 0
-        while begin == end:
-            begin = np.random.randint(0, window_len)
-            end = np.random.randint(0, window_len)
-            if begin > end:
-                begin, end = end, begin
-        len = end - begin
-        xtilde[i,:,begin:end] += np.random.normal(loc=0., scale=sigma, size=(1, d2, len))
+        begin = np.random.randint(0, last_time_idx)
+        xtilde[i,:,begin:begin+sub_len] += noise_mag * np.random.normal(loc=0., scale=sigma, size=(1, d2, sub_len))
     print(xtilde.shape)
     return xtilde
 #     return x + np.random.normal(loc=0., scale=sigma, size=x.shape)
