@@ -15,15 +15,16 @@ window_len = 1500
 def jitter(x, sigma=0.8):
     # https://arxiv.org/pdf/1706.00527.pdf
     xtilde = x.clone().detach()
-    begin, end = 0, 0
-    while begin == end:
-        begin = np.random.randint(0, window_len)
-        end = np.random.randint(0, window_len)
-        if begin > end:
-            begin, end = end, begin
-    len = end - begin
     d1, d2, _ = xtilde.shape
-    xtilde[:,:,begin:end] += np.random.normal(loc=0., scale=sigma, size=(d1, d2, len))
+    for i in range(d1): # add noise to a segment of each sample at independently random locations
+        begin, end = 0, 0
+        while begin == end:
+            begin = np.random.randint(0, window_len)
+            end = np.random.randint(0, window_len)
+            if begin > end:
+                begin, end = end, begin
+        len = end - begin
+        xtilde[i,:,begin:end] += np.random.normal(loc=0., scale=sigma, size=(1, d2, len))
     print(xtilde.shape)
     return xtilde
 #     return x + np.random.normal(loc=0., scale=sigma, size=x.shape)
