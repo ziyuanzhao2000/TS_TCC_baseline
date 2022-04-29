@@ -60,17 +60,17 @@ class TS_SD(nn.Module):
         self.num_heads = 12 # to prevent reading another config file, we will hardcode this (it's a baseline exp anyway)
         self.kernel_sizes = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
         self.feature_len = 8
-        self.n_classes = 3
+#         self.n_classes = 3
         self.device = device
         self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.conv_V_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.conv_K_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
-        self.dim = np.sqrt(1500)
+        self.dim = np.sqrt(configs.window_len)
         self.linear = nn.Linear(self.feature_len * self.num_heads, 1)
         self.final_conv_1 = nn.Conv1d(self.feature_len * self.num_heads, 32, kernel_size=8, stride=4)
         self.final_conv_2 = nn.Conv1d(32, 64, kernel_size=8, stride=4)
         self.final_conv_3 = nn.Conv1d(64, self.feature_len, kernel_size=8, stride=4)
-        self.logit = nn.Linear(176, self.n_classes)
+        self.logit = nn.Linear(176, configs.num_classes)
 
     def forward(self, signal, mode="pretrain"):
         heads_out = []

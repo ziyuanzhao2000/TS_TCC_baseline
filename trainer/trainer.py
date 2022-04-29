@@ -106,7 +106,6 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
 
         else: # supervised training or fine tuining
             predictions, _ = output
-            print(predictions, labels)
             total_preds.append(predictions.detach().to('cpu') )
             loss = criterion(predictions, labels)
             total_acc.append(labels.eq(predictions.detach().argmax(dim=1)).float().mean())
