@@ -107,8 +107,6 @@ if training_mode == "fine_tune":
 if training_mode == "ts_sd_finetune":
     # load saved model of this experiment
     params = temporal_contr_model.state_dict()
-    for k, _ in params.items():
-        print(k)
     load_from = os.path.join(os.path.join(logs_save_dir, experiment_description, run_description, f"ts_sd_seed_{SEED}", "saved_models"))
     chkpoint = torch.load(os.path.join(load_from, "ckp_last.pt"), map_location=device)
     pretrained_dict = chkpoint["temporal_contr_model_state_dict"]
