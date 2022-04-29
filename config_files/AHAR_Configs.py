@@ -6,7 +6,7 @@ class Config(object):
         self.stride = 1
         self.final_out_channels = 128
 
-        self.num_classes = 6
+        self.num_classes = 2
         self.dropout = 0.35
         self.features_len = 28
 

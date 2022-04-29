@@ -99,6 +99,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             loss = (temp_cont_loss1 + temp_cont_loss2) * lambda1 +  nt_xent_criterion(zis, zjs) * lambda2
 
         elif training_mode == "ts_sd":
+            print(base_signal - denoised_signal)
             loss = ((base_signal - denoised_signal)**2).mean()
 
         else: # supervised training or fine tuining
@@ -126,7 +127,6 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
         pred = pred_prob.argmax(dim=1)
         target = total_labels
         target_prob = F.one_hot(target, num_classes=model.n_classes)
-        print(pred, target)
         metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
         metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
         metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
