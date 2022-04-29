@@ -24,6 +24,8 @@ def jitter(x, sigma=0.8):
     len = end - begin
     d1, d2, _ = xtilde.shape
     xtilde[:,:,begin:end] += np.random.normal(loc=0., scale=sigma, size=(d1, d2, len))
+    print(xtilde.shape)
+    return xtilde
 #     return x + np.random.normal(loc=0., scale=sigma, size=x.shape)
 
 
