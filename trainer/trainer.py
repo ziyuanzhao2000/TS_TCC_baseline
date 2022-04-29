@@ -99,7 +99,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             loss = (temp_cont_loss1 + temp_cont_loss2) * lambda1 +  nt_xent_criterion(zis, zjs) * lambda2
 
         elif training_mode == "ts_sd":
-            print(base_signal - denoised_signal)
+            #print(base_signal - denoised_signal)
             loss = ((base_signal - denoised_signal)**2).mean()
 
         else: # supervised training or fine tuining
