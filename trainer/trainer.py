@@ -86,7 +86,8 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
             noisy_signal = aug2
             denoised_signal = temporal_contr_model(noisy_signal)
         elif training_mode == "ts_sd_finetune":
-            output = (temporal_contr_model(noisy_signal, mode='finetune'), None)
+            base_signal = aug1
+            output = (temporal_contr_model(base_signal, mode='finetune'), None)
 
         else: # supervised
             output = model(data)
