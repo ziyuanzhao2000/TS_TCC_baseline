@@ -4,17 +4,27 @@ import torch
 
 def DataTransform(sample, config):
 
-    weak_aug = scaling(sample, config.augmentation.jitter_scale_ratio)
-    strong_aug = jitter(permutation(sample, max_segments=config.augmentation.max_seg), config.augmentation.jitter_ratio)
-
+    #weak_aug = scaling(sample, config.augmentation.jitter_scale_ratio)
+    weak_aug = sample
+    #strong_aug = jitter(permutation(sample, max_segments=config.augmentation.max_seg), config.augmentation.jitter_ratio)
+    strong_aug = jitter(sample, config.augmentation.jitter_ratio)
     return weak_aug, strong_aug
 
+window_len = 1500
 
 def jitter(x, sigma=0.8):
     # https://arxiv.org/pdf/1706.00527.pdf
-    print(x.shape)
-    exit(1)
-    return x + np.random.normal(loc=0., scale=sigma, size=x.shape)
+    xtilde = x.clone().detach()
+    begin, end = 0, 0
+    while begin == end:
+        begin = np.random.randint(0, window_len)
+        end = np.random.randint(0, window_len)
+        if begin > end:
+            begin, end = end, begin
+    len = end - begin
+    d1, d2, _ = xtilde.shape
+    xtilde[:,:,begin:end] += np.random.normal(loc=0., scale=sigma, size=(d1, d2, len))
+#     return x + np.random.normal(loc=0., scale=sigma, size=x.shape)
 
 
 def scaling(x, sigma=1.1):
