@@ -62,9 +62,9 @@ class TS_SD(nn.Module):
         self.feature_len = 8
         self.n_classes = 3
         self.device = device
-        self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(1, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
-        self.conv_V_encoders = nn.ModuleList([nn.Conv1d(1, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
-        self.conv_K_encoders = nn.ModuleList([nn.Conv1d(1, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+        self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+        self.conv_V_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+        self.conv_K_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.dim = np.sqrt(1500)
         self.linear = nn.Linear(self.feature_len * self.num_heads, 1)
         self.final_conv_1 = nn.Conv1d(self.feature_len * self.num_heads, 32, kernel_size=8, stride=4)
