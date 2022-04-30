@@ -7,14 +7,14 @@ def DataTransform(sample, config):
     #weak_aug = scaling(sample, config.augmentation.jitter_scale_ratio)
     weak_aug = sample
     #strong_aug = jitter(permutation(sample, max_segments=config.augmentation.max_seg), config.augmentation.jitter_ratio)
-    strong_aug = jitter(sample, config.augmentation.jitter_ratio)
+    strong_aug = jitter(sample, config.augmentation.jitter_ratio, config.window_len)
     return weak_aug, strong_aug
 
-window_len = 1500
-sub_len = int(0.7 * window_len)
-last_time_idx = window_len - sub_len
-noise_mag = 0.2
-def jitter(x, sigma=0.8):
+def jitter(x, sigma=0.8, window_len):
+    sub_len = int(0.7 * window_len)
+    last_time_idx = window_len - sub_len
+    noise_mag = 0.2
+
     # https://arxiv.org/pdf/1706.00527.pdf
     xtilde = x.clone().detach()
     d1, d2, _ = xtilde.shape
@@ -22,8 +22,6 @@ def jitter(x, sigma=0.8):
     for i in range(d1): # add noise to a segment of each sample at independently random locations
         for j in range(d2):
             begin = np.random.randint(0, last_time_idx)
-            print(i, j, begin, sub_len, xtilde[i,j,begin:begin+sub_len].shape)
-            print(np.random.normal(loc=0., scale=sigma, size=(1, 1, sub_len)).shape)
             xtilde[i,j,begin:begin+sub_len] += noise_mag * np.random.normal(loc=0., scale=sigma, size=(1, 1, sub_len))
     return xtilde
 #     return x + np.random.normal(loc=0., scale=sigma, size=x.shape)ç
