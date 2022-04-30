@@ -95,7 +95,7 @@ class TS_SD(nn.Module):
         self.logit = nn.Linear(624, configs.num_classes) #176, 8, or 624
 
     def forward(self, signal, mode="pretrain"):
-        X = self.preencoder(signal.transpose(1,2)) # nb * 64 * 1500
+        X = self.preencoder(signal.transpose(1,2)).transpose(1,2) # nb * 64 * 1500
         for encoder in self.conv_encoders:
             X = encoder(X)
 
