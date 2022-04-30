@@ -105,6 +105,7 @@ if training_mode == "fine_tune":
     model.load_state_dict(model_dict)
 
 if training_mode == "ts_sd_finetune":
+    pass
     # load saved model of this experiment
 #     params = temporal_contr_model.state_dict()
 #     load_from = os.path.join(os.path.join(logs_save_dir, experiment_description, run_description, f"ts_sd_seed_{SEED}", "saved_models"))
