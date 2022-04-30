@@ -54,46 +54,52 @@ class TC(nn.Module):
         return nce, self.projection_head(c_t)
 
 
+class convEncoder(nn.Module):
+    def __init__(self, configs, device, kernel_sizes, num_channels):
+        self.kernel_sizes = kernel_sizes
+        self.num_heads = len(kernel_sizes)
+        self.num_channels = num_channels
+        self.feature_len = num_channels // self.num_heads
+        self.device = device
+        self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(num_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+        self.conv_V_encoders = nn.ModuleList([nn.Conv1d(num_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+        self.conv_K_encoders = nn.ModuleList([nn.Conv1d(num_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+        self.dim = np.sqrt(configs.window_len)
+
+    def forward(self, X):
+        for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
+            Q = Qe(signal)
+            V = Ve(signal)
+            K = Ke(signal)
+            score = torch.bmm(Q.transpose(1,2), K) / self.dim #             K, Q, V of shape batch_size (nb) * feature_len (fl) * window size/time steps (ts)
+            attn = F.softmax(score, -1)                       #             Q.T = nb * ts * fl ; K = nb * fl * ts, score = nb * ts * ts
+            context = torch.bmm(attn, V.transpose(1,2)).transpose(1,2) # nb * fl * ts, same as QVK
+            heads_out.append(context) # list of num_heads tensors of shape nb * fl * ts
+        return torch.cat(heads_out, dim=1)
+
 class TS_SD(nn.Module):
-    def __init__(self, configs, device):
+    def __init__(self, configs, device, kernel_sizes, num_channels, num_encoders):
         super(TS_SD, self).__init__()
-        self.num_heads = 4 # to prevent reading another config file, we will hardcode this (it's a baseline exp anyway)
-        self.kernel_sizes = [1,2,3,4] #[3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
-        self.feature_len = 8
-#         self.n_classes = 3
+        self.kernel_sizes = kernel_sizes
+        self.num_channels = num_channels
         self.device = device  # conv : nb * n_ic * ws -> nb * n_feat * ws
         self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.conv_V_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.conv_K_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
         self.dim = np.sqrt(configs.window_len)
+        self.conv_encoders = nn.ModuleList([convEncoder(configs, device, kernel_sizes, num_channels) for _ in range(num_encoders)])
+        self.preencoder = nn.Linear(configs.input_channels, self.num_heads * self.feature_len)
         self.linear = nn.Linear(self.feature_len * self.num_heads, 1)
         self.final_conv_1 = nn.Conv1d(self.feature_len * self.num_heads, 32, kernel_size=8, stride=4)
         self.final_conv_2 = nn.Conv1d(32, 64, kernel_size=8, stride=4)
         self.final_conv_3 = nn.Conv1d(64, self.feature_len, kernel_size=8, stride=4)
         self.logit = nn.Linear(8, configs.num_classes) #176, 8, or 624
 
-#         self.pre_transformer = nn.Linear(configs.input_channels, self.num_heads * self.feature_len)
-#         self.transformer = nn.TransformerEncoderLayer(d_model=self.num_heads * self.feature_len,
-#                                                       nhead=self.num_heads, batch_first=True)
     def forward(self, signal, mode="pretrain"):
-        heads_out = []
-        signal.to(self.device)
-        for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
-            Q = Qe(signal)
-            V = Ve(signal)
-            K = Ke(signal)
-#             K, Q, V of shape batch_size (nb) * feature_len (fl) * window size/time steps (ts)
-#             Q.T = nb * ts * fl ; K = nb * fl * ts, score = nb * ts * ts
-            score = torch.bmm(Q.transpose(1,2), K) / self.dim
-            attn = F.softmax(score, -1)
-            context = torch.bmm(attn, V.transpose(1,2)).transpose(1,2) # nb * fl * ts, same as QVK
-            heads_out.append(context) # list of num_heads tensors of shape nb * fl * ts
+        X = self.preencoder(signal.transpose(1,2)) # nb * 64 * 1500
+        for encoder in self.conv_encoders:
+            X = encoder(X)
 
-        # concat contexts in heads_out along feature dimension (axis = 1)
-        concat = torch.cat(heads_out, dim=1) # nb * (feat len * num_heads) * ts
-#         print(signal.shape)
-#         inflated_signal = self.pre_transformer(signal.transpose(1,2)) # nb * 64 * 1500
-#         concat = self.transformer(inflated_signal).transpose(1,2)
         if mode=='pretrain': # nb * (fl * num_heads) * ts
             return self.linear(concat.transpose(1,2)).transpose(1,2)
         else:
