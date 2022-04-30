@@ -10,20 +10,21 @@ class Config(object):
 
         self.num_classes = 3
         self.dropout = 0.35
+        self.window_len = 5120
 
         # for noisy labels experiment
         self.corruption_prob = 0.3
 
 
         # training configs
-        self.num_epoch = 40
+        self.num_epoch = 50
         self.batch_size = 64
 
         # optimizer parameters
         self.optimizer = 'adam'
         self.beta1 = 0.9
         self.beta2 = 0.99
-        self.lr = 3e-4
+        self.lr = 3e-7
 
         # data parameters
         self.drop_last = True
