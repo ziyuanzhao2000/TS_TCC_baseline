@@ -119,7 +119,7 @@ if training_mode == "ts_sd_finetune":
                 del pretrained_dict[i]
     model_dict.update(pretrained_dict)
     temporal_contr_model.load_state_dict(model_dict)
-    set_requires_grad(model, pretrained_dict, requires_grad=False)
+    #set_requires_grad(model, pretrained_dict, requires_grad=False)
 
 if training_mode == "train_linear" or "tl" in training_mode:
     load_from = os.path.join(os.path.join(logs_save_dir, experiment_description, run_description, f"self_supervised_seed_{SEED}", "saved_models"))

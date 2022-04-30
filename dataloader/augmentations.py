@@ -19,11 +19,11 @@ def jitter(x, sigma=0.8):
     xtilde = x.clone().detach()
     d1, d2, _ = xtilde.shape
     for i in range(d1): # add noise to a segment of each sample at independently random locations
-        begin = np.random.randint(0, last_time_idx)
-        xtilde[i,:,begin:begin+sub_len] += noise_mag * np.random.normal(loc=0., scale=sigma, size=(1, d2, sub_len))
-    print(xtilde.shape)
+        for j in range(d2):
+            begin = np.random.randint(0, last_time_idx)
+            xtilde[i,j,begin:begin+sub_len] += noise_mag * np.random.normal(loc=0., scale=sigma, size=(1, 1, sub_len))
     return xtilde
-#     return x + np.random.normal(loc=0., scale=sigma, size=x.shape)
+#     return x + np.random.normal(loc=0., scale=sigma, size=x.shape)ç
 
 
 def scaling(x, sigma=1.1):
