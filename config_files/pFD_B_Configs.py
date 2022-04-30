@@ -18,7 +18,7 @@ class Config(object):
 
         # training configs
         self.num_epoch = 40
-        self.batch_size = 20
+        self.batch_size = 4
 
         # optimizer parameters
         self.optimizer = 'adam'
