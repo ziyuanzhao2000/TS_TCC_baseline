@@ -68,6 +68,7 @@ class convEncoder(nn.Module):
         self.dim = np.sqrt(configs.window_len)
 
     def forward(self, X):
+        heads_out = []
         for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
             Q = Qe(X)
             V = Ve(X)
