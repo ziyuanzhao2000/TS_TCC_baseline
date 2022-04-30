@@ -9,6 +9,7 @@ class Config(object):
         self.num_classes = 6
         self.dropout = 0.35
         self.features_len = 18
+        self.window_len = 206
 
         # training configs
         self.num_epoch = 40
