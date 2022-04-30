@@ -75,7 +75,7 @@ class TS_SD(nn.Module):
         self.final_conv_3 = nn.Conv1d(64, self.feature_len, kernel_size=8, stride=4)
         self.logit = nn.Linear(8, configs.num_classes) #176, 8, or 624
 
-        self.pre_transformer = nn.Linear(1, 64)
+        self.pre_transformer = nn.Linear(configs.input_channels, 64)
         self.transformer = nn.TransformerEncoderLayer(d_model=64, nhead=8, batch_first=True)
     def forward(self, signal, mode="pretrain"):
         heads_out = []
