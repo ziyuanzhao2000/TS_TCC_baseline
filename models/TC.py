@@ -69,9 +69,9 @@ class convEncoder(nn.Module):
 
     def forward(self, X):
         for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
-            Q = Qe(signal)
-            V = Ve(signal)
-            K = Ke(signal)
+            Q = Qe(X)
+            V = Ve(X)
+            K = Ke(X)
             score = torch.bmm(Q.transpose(1,2), K) / self.dim #             K, Q, V of shape batch_size (nb) * feature_len (fl) * window size/time steps (ts)
             attn = F.softmax(score, -1)                       #             Q.T = nb * ts * fl ; K = nb * fl * ts, score = nb * ts * ts
             context = torch.bmm(attn, V.transpose(1,2)).transpose(1,2) # nb * fl * ts, same as QVK
