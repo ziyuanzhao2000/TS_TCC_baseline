@@ -83,7 +83,7 @@ class TS_SD(nn.Module):
             V = Ve(signal)
             K = Ke(signal)
 #             K, Q, V of shape batch_size (nb) * feature_len (fl) * window size/time steps (ts)
-            Q.T = nb * ts * fl ; K = nb * fl * ts, score = nb * ts * ts
+#             Q.T = nb * ts * fl ; K = nb * fl * ts, score = nb * ts * ts
             score = torch.bmm(Q.transpose(1,2), K) / self.dim
             attn = F.softmax(score, -1)
             context = torch.bmm(attn, V.transpose(1,2)).transpose(1,2) # nb * fl * ts, same as QVK
