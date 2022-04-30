@@ -93,7 +93,7 @@ class TS_SD(nn.Module):
         self.final_conv_1 = nn.Conv1d(self.feature_len * self.num_heads, 32, kernel_size=8, stride=4)
         self.final_conv_2 = nn.Conv1d(32, 64, kernel_size=8, stride=4)
         self.final_conv_3 = nn.Conv1d(64, self.feature_len, kernel_size=8, stride=4)
-        self.logit = nn.Linear(8, configs.num_classes) #176, 8, or 624
+        self.logit = nn.Linear(624, configs.num_classes) #176, 8, or 624
 
     def forward(self, signal, mode="pretrain"):
         X = self.preencoder(signal.transpose(1,2)) # nb * 64 * 1500
