@@ -7,10 +7,10 @@ def DataTransform(sample, config):
     #weak_aug = scaling(sample, config.augmentation.jitter_scale_ratio)
     weak_aug = sample
     #strong_aug = jitter(permutation(sample, max_segments=config.augmentation.max_seg), config.augmentation.jitter_ratio)
-    strong_aug = jitter(sample, config.augmentation.jitter_ratio, config.window_len)
+    strong_aug = jitter(sample, config.window_len, config.augmentation.jitter_ratio)
     return weak_aug, strong_aug
 
-def jitter(x, sigma=0.8, window_len):
+def jitter(x, window_len, sigma=0.8):
     sub_len = int(0.7 * window_len)
     last_time_idx = window_len - sub_len
     noise_mag = 0.2
