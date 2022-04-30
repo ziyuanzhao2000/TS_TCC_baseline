@@ -76,7 +76,7 @@ class TS_SD(nn.Module):
         self.logit = nn.Linear(8, configs.num_classes) #176, 8, or 624
 
         self.pre_transformer = nn.Linear(1, 64)
-        self.transformer = nn.TransformerEncoderLayer(d_model=configs.input_channels, nhead=8, batch_first=True)
+        self.transformer = nn.TransformerEncoderLayer(d_model=64, nhead=8, batch_first=True)
     def forward(self, signal, mode="pretrain"):
         heads_out = []
         signal.to(self.device)
