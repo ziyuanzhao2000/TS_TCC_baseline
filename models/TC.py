@@ -101,9 +101,9 @@ class TS_SD(nn.Module):
             X = encoder(X)
 
         if mode=='pretrain': # nb * (fl * num_heads) * ts
-            return self.linear(concat.transpose(1,2)).transpose(1,2)
+            return self.linear(X.transpose(1,2)).transpose(1,2)
         else:
-            final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(concat)))
+            final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(X)))
             flat = torch.reshape(final_conv, (final_conv.shape[0], -1))
             return self.logit(flat)
 
