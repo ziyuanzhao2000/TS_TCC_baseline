@@ -107,19 +107,19 @@ if training_mode == "fine_tune":
 if training_mode == "ts_sd_finetune":
     pass
     # load saved model of this experiment
-#     params = temporal_contr_model.state_dict()
-#     load_from = os.path.join(os.path.join(logs_save_dir, experiment_description, run_description, f"ts_sd_seed_{SEED}", "saved_models"))
-#     chkpoint = torch.load(os.path.join(load_from, "ckp_last.pt"), map_location=device)
-#     pretrained_dict = chkpoint["temporal_contr_model_state_dict"]
-#     model_dict = temporal_contr_model.state_dict()
-#     del_list = ['logit']
-#     pretrained_dict_copy = pretrained_dict.copy()
-#     for i in pretrained_dict_copy.keys():
-#         for j in del_list:
-#             if j in i:
-#                 del pretrained_dict[i]
-#     model_dict.update(pretrained_dict)
-#     temporal_contr_model.load_state_dict(model_dict)
+    params = temporal_contr_model.state_dict()
+    load_from = os.path.join(os.path.join(logs_save_dir, experiment_description, run_description, f"ts_sd_seed_{SEED}", "saved_models"))
+    chkpoint = torch.load(os.path.join(load_from, "ckp_last.pt"), map_location=device)
+    pretrained_dict = chkpoint["temporal_contr_model_state_dict"]
+    model_dict = temporal_contr_model.state_dict()
+    del_list = ['logit']
+    pretrained_dict_copy = pretrained_dict.copy()
+    for i in pretrained_dict_copy.keys():
+        for j in del_list:
+            if j in i:
+                del pretrained_dict[i]
+    model_dict.update(pretrained_dict)
+    temporal_contr_model.load_state_dict(model_dict)
     #set_requires_grad(model, pretrained_dict, requires_grad=False)
 
 if training_mode == "train_linear" or "tl" in training_mode:
