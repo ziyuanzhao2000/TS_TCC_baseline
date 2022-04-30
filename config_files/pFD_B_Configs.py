@@ -10,6 +10,7 @@ class Config(object):
 
         self.num_classes = 3
         self.dropout = 0.35
+        self.window_len = 5120
 
         # for noisy labels experiment
         self.corruption_prob = 0.3
