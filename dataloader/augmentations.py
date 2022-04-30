@@ -23,7 +23,7 @@ def jitter(x, sigma=0.8):
         for j in range(d2):
             begin = np.random.randint(0, last_time_idx)
             print(begin, sub_len, xtilde[i,j,begin:begin+sub_len].shape)
-            print(np.random.normal(loc=0., scale=sigma, size=(1, 1, sub_len).shape))
+            print(np.random.normal(loc=0., scale=sigma, size=(1, 1, sub_len)).shape)
             xtilde[i,j,begin:begin+sub_len] += noise_mag * np.random.normal(loc=0., scale=sigma, size=(1, 1, sub_len))
     return xtilde
 #     return x + np.random.normal(loc=0., scale=sigma, size=x.shape)ç
