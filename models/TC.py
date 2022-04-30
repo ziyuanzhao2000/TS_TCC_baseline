@@ -58,7 +58,7 @@ class TS_SD(nn.Module):
     def __init__(self, configs, device):
         super(TS_SD, self).__init__()
         self.num_heads = 4 # to prevent reading another config file, we will hardcode this (it's a baseline exp anyway)
-        self.kernel_sizes = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
+        self.kernel_sizes = [1,2,3,4] #[3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
         self.feature_len = 8
 #         self.n_classes = 3
         self.device = device  # conv : nb * n_ic * ws -> nb * n_feat * ws
