@@ -74,6 +74,8 @@ class TS_SD(nn.Module):
         self.final_conv_2 = nn.Conv1d(32, 64, kernel_size=8, stride=4)
         self.final_conv_3 = nn.Conv1d(64, self.feature_len, kernel_size=8, stride=4)
         self.logit = nn.Linear(8, configs.num_classes) #176, 8, or 624
+
+        self.pre_transformer = nn.Linear(1, 64)
         self.transformer = nn.TransformerEncoderLayer(d_model=configs.input_channels, nhead=8, batch_first=True)
     def forward(self, signal, mode="pretrain"):
         heads_out = []
@@ -94,7 +96,8 @@ class TS_SD(nn.Module):
 
         # concat contexts in heads_out along feature dimension (axis = 1)
 #         concat = torch.cat(heads_out, dim=1) # nb * (feat len * num_heads) * ts
-        concat = self.transformer(signal.transpose(1,2)).transpose(1,2)
+        inflated_signal = self.pre_transformer(signal) # nb * 64 * 1500
+        concat = self.transformer(inflated_signal.transpose(1,2)).transpose(1,2)
         if mode=='pretrain': # nb * (fl * num_heads) * ts
             return self.linear(concat.transpose(1,2)).transpose(1,2)
         else:
