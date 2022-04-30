@@ -56,6 +56,7 @@ class TC(nn.Module):
 
 class convEncoder(nn.Module):
     def __init__(self, configs, device, kernel_sizes, num_channels):
+        super(convEncoder, self).__init__()
         self.kernel_sizes = kernel_sizes
         self.num_heads = len(kernel_sizes)
         self.num_channels = num_channels
