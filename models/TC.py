@@ -82,7 +82,9 @@ class TS_SD(nn.Module):
     def __init__(self, configs, device, kernel_sizes, num_channels, num_encoders):
         super(TS_SD, self).__init__()
         self.kernel_sizes = kernel_sizes
+        self.num_heads = len(kernel_sizes)
         self.num_channels = num_channels
+        self.feature_len = num_channels // self.num_heads
         self.device = device  # conv : nb * n_ic * ws -> nb * n_feat * ws
         self.conv_encoders = nn.ModuleList([convEncoder(configs, device, kernel_sizes, num_channels) for _ in range(num_encoders)])
         self.preencoder = nn.Linear(configs.input_channels, num_channels)
