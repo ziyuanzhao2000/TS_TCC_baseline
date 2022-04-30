@@ -61,10 +61,13 @@ class TS_SD(nn.Module):
         self.kernel_sizes = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]
         self.feature_len = 8
 #         self.n_classes = 3
-        self.device = device
-        self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
-        self.conv_V_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
-        self.conv_K_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+        self.device = device  # conv : nb * n_ic * ws -> nb * n_feat * ws
+#         self.conv_Q_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+#         self.conv_V_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+#         self.conv_K_encoders = nn.ModuleList([nn.Conv1d(configs.input_channels, self.feature_len, kernel_size=n, padding='same') for n in self.kernel_sizes])
+        self.conv_Q_encoders = nn.ModuleList([nn.Linear(configs.input_channels, self.feature_len) for n in self.kernel_sizes])
+        self.conv_K_encoders = nn.ModuleList([nn.Linear(configs.input_channels, self.feature_len) for n in self.kernel_sizes])
+        self.conv_V_encoders = nn.ModuleList([nn.Linear(configs.input_channels, self.feature_len) for n in self.kernel_sizes])
         self.dim = np.sqrt(configs.window_len)
         self.linear = nn.Linear(self.feature_len * self.num_heads, 1)
         self.final_conv_1 = nn.Conv1d(self.feature_len * self.num_heads, 32, kernel_size=8, stride=4)
@@ -76,9 +79,12 @@ class TS_SD(nn.Module):
         heads_out = []
         signal.to(self.device)
         for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
-            Q = Qe(signal)
-            V = Ve(signal)
-            K = Ke(signal)
+#             Q = Qe(signal)
+#             V = Ve(signal)
+#             K = Ke(signal)
+            Q = Qe(signal.transpose(1,2)).transpose(1,2)
+            V = Qe(signal.transpose(1,2)).transpose(1,2)
+            E = Qe(signal.transpose(1,2)).transpose(1,2)
             # K, Q, V of shape batch_size (nb) * feature_len (fl) * window size/time steps (ts)
             # Q.T = nb * ts * fl ; K = nb * fl * ts, score = nb * ts * ts
             score = torch.bmm(Q.transpose(1,2), K) / self.dim
