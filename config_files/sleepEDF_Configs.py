@@ -10,6 +10,7 @@ class Config(object):
         self.kernel_size = 25
         self.stride = 3
         self.features_len = 10 # This only works for the current transfer learning into epilepsy dataset!
+        self.window_len = 178
 
         # training configs
         self.num_epoch = 40

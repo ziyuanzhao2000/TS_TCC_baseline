@@ -9,6 +9,7 @@ class Config(object):
         self.num_classes = 2
         self.dropout = 0.35
         self.features_len = 10 # This only works for the current transfer learning into epilepsy dataset!, 24
+        self.window_len = 178
 
         # training configs
         self.num_epoch = 40
