@@ -85,7 +85,7 @@ logger.debug("Data loaded ...")
 # Load Model
 model = base_Model(configs).to(device)
 if training_mode in ["ts_sd", "ts_sd_finetune"]:
-    temporal_contr_model = TS_SD(configs,device,[3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25], 96, 6).to(device)
+    temporal_contr_model = TS_SD(configs,device,[3, 9, 15, 21], 32, 1).to(device)
 else:
     temporal_contr_model = TC(configs, device).to(device)
 
