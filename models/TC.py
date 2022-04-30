@@ -74,27 +74,27 @@ class TS_SD(nn.Module):
         self.final_conv_2 = nn.Conv1d(32, 64, kernel_size=8, stride=4)
         self.final_conv_3 = nn.Conv1d(64, self.feature_len, kernel_size=8, stride=4)
         self.logit = nn.Linear(8, configs.num_classes) #176, 8, or 624
-
+        self.transformer = nn.TransformerEncoderLayer(d_model=configs.window_len, nhead=8)
     def forward(self, signal, mode="pretrain"):
         heads_out = []
         signal.to(self.device)
-        for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
+#         for Qe, Ve, Ke in zip(self.conv_Q_encoders, self.conv_V_encoders, self.conv_K_encoders):
 #             Q = Qe(signal)
 #             V = Ve(signal)
 #             K = Ke(signal)
-            Q = Qe(signal.transpose(1,2)).transpose(1,2)
-            V = Ve(signal.transpose(1,2)).transpose(1,2)
-            K = Ke(signal.transpose(1,2)).transpose(1,2)
+#             Q = Qe(signal.transpose(1,2)).transpose(1,2)
+#             V = Ve(signal.transpose(1,2)).transpose(1,2)
+#             K = Ke(signal.transpose(1,2)).transpose(1,2)
             # K, Q, V of shape batch_size (nb) * feature_len (fl) * window size/time steps (ts)
             # Q.T = nb * ts * fl ; K = nb * fl * ts, score = nb * ts * ts
-            score = torch.bmm(Q.transpose(1,2), K) / self.dim
-            attn = F.softmax(score, -1)
-            context = torch.bmm(attn, V.transpose(1,2)).transpose(1,2) # nb * fl * ts, same as QVK
-            heads_out.append(context) # list of num_heads tensors of shape nb * fl * ts
+#             score = torch.bmm(Q.transpose(1,2), K) / self.dim
+#             attn = F.softmax(score, -1)
+#             context = torch.bmm(attn, V.transpose(1,2)).transpose(1,2) # nb * fl * ts, same as QVK
+#             heads_out.append(context) # list of num_heads tensors of shape nb * fl * ts
 
         # concat contexts in heads_out along feature dimension (axis = 1)
-        concat = torch.cat(heads_out, dim=1) # nb * (feat len * num_heads) * ts
-
+#         concat = torch.cat(heads_out, dim=1) # nb * (feat len * num_heads) * ts
+        concat = self.transformer(signal)
         if mode=='pretrain': # nb * (fl * num_heads) * ts
             return self.linear(concat.transpose(1,2)).transpose(1,2)
         else:
