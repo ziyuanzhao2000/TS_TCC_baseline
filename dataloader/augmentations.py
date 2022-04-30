@@ -15,10 +15,10 @@ sub_len = int(0.7 * window_len)
 last_time_idx = window_len - sub_len
 noise_mag = 0.2
 def jitter(x, sigma=0.8):
-    print(x).shape
     # https://arxiv.org/pdf/1706.00527.pdf
     xtilde = x.clone().detach()
     d1, d2, _ = xtilde.shape
+    print(xtilde.shape)
     for i in range(d1): # add noise to a segment of each sample at independently random locations
         for j in range(d2):
             begin = np.random.randint(0, last_time_idx)
