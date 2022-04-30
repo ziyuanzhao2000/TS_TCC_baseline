@@ -15,6 +15,7 @@ sub_len = int(0.7 * window_len)
 last_time_idx = window_len - sub_len
 noise_mag = 0.2
 def jitter(x, sigma=0.8):
+    print(x).shape
     # https://arxiv.org/pdf/1706.00527.pdf
     xtilde = x.clone().detach()
     d1, d2, _ = xtilde.shape
