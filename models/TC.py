@@ -87,9 +87,9 @@ class TS_SD(nn.Module):
             heads_out.append(context) # list of num_heads tensors of shape nb * fl * ts
 
         # concat contexts in heads_out along feature dimension (axis = 1)
-        concat = torch.cat(heads_out, dim=1) # nb * (fl * num_heads) * ts
+        concat = torch.cat(heads_out, dim=1) # nb * (feat len * num_heads) * ts
 
-        if mode=='pretrain':
+        if mode=='pretrain': # nb * (fl * num_heads) * ts
             return self.linear(concat.transpose(1,2)).transpose(1,2)
         else:
             final_conv = self.final_conv_3(self.final_conv_2(self.final_conv_1(concat)))
