@@ -85,9 +85,9 @@ class TS_SD(nn.Module):
         self.num_channels = num_channels
         self.device = device  # conv : nb * n_ic * ws -> nb * n_feat * ws
         self.conv_encoders = nn.ModuleList([convEncoder(configs, device, kernel_sizes, num_channels) for _ in range(num_encoders)])
-        self.preencoder = nn.Linear(configs.input_channels, self.num_heads * self.feature_len)
-        self.linear = nn.Linear(self.feature_len * self.num_heads, 1)
-        self.final_conv_1 = nn.Conv1d(self.feature_len * self.num_heads, 32, kernel_size=8, stride=4)
+        self.preencoder = nn.Linear(configs.input_channels, num_channels)
+        self.linear = nn.Linear(num_channels, 1)
+        self.final_conv_1 = nn.Conv1d(num_channels, 32, kernel_size=8, stride=4)
         self.final_conv_2 = nn.Conv1d(32, 64, kernel_size=8, stride=4)
         self.final_conv_3 = nn.Conv1d(64, self.feature_len, kernel_size=8, stride=4)
         self.logit = nn.Linear(624, configs.num_classes) #176, 8, or 624
