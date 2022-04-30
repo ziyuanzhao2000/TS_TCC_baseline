@@ -130,7 +130,7 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
         target = total_labels
         print(target.shape)
         print(target)
-        target_prob = F.one_hot(target, num_classes=model.n_classes)
+        target_prob = F.one_hot(target.long(), num_classes=model.n_classes)
         metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
         metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
         metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
@@ -165,6 +165,9 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
 
             if training_mode in ["self_supervised", "ts_sd"]:
                 pass
+            elif training_mode == "ts_sd_finetune":
+                base_signal = aug1
+                output = (temporal_contr_model(base_signal, mode='finetune'), None)
             else:
                 output = model(data)
 
