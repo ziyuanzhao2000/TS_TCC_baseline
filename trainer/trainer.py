@@ -128,6 +128,8 @@ def model_train(model, temporal_contr_model, model_optimizer, temp_cont_optimize
         pred_prob = total_preds
         pred = pred_prob.argmax(dim=1)
         target = total_labels
+        print(target.shape)
+        print(target)
         target_prob = F.one_hot(target, num_classes=model.n_classes)
         metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
         metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
