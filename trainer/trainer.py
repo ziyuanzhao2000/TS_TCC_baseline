@@ -163,8 +163,7 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
             total_labels.append(labels.to('cpu'))
             data, labels = data.float().to(device), labels.long().to(device)
 
-            if training_mode in ["self_supervised", "ts_sd"]:
-                pass
+34                pass
             elif training_mode == "ts_sd_finetune":
                 output = (temporal_contr_model(data, mode='finetune'), None)
             else:
@@ -205,16 +204,24 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
             pred_prob = total_preds
             pred = pred_prob.argmax(dim=1)
             target = total_labels
-            target_prob = F.one_hot(target, num_classes=model.n_classes)
+            target_prob = F.one_hot(target.long(), num_classes=model.n_classes)
             metrics_dict['Precision'] = sklearn.metrics.precision_score(target, pred, average='macro')
             metrics_dict['Recall'] = sklearn.metrics.recall_score(target, pred, average='macro')
             metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
             metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target_prob, pred_prob, multi_class='ovr')
             metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target_prob, pred_prob)
+            kmean_model = KMeans(n_clusters=2, random_state=0).fit(features)
+            kmean_pred = kmean_model.predict(features)
+            metrics_dict['Silhouette'] = sklearn.metrics.silhouette_score(features, target, metric='euclidean')
+            metrics_dict['ARI'] = sklearn.metrics.adjusted_rand_score(target, kmean_pred)
+            metrics_dict['MI'] = sklearn.metrics.mutual_info_score(target, kmean_pred)
         else:
             metrics_dict['Precision'] = None
             metrics_dict['Recall'] = None
             metrics_dict['F1'] = None
             metrics_dict['AUROC'] = None
             metrics_dict['AUPRC'] = None
+            metrics_dict['Silhouette'] = None
+            metrics_dict['ARI'] = None # adjusted rand index score
+            metrics_dict['MI'] = None # mutual infomation
         return total_loss, total_acc, outs, trgs, metrics_dict
