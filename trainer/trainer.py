@@ -163,7 +163,8 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
             total_labels.append(labels.to('cpu'))
             data, labels = data.float().to(device), labels.long().to(device)
 
-34                pass
+            if training_mode in ["self_supervised", "ts_sd"]:
+                pass
             elif training_mode == "ts_sd_finetune":
                 output = (temporal_contr_model(data, mode='finetune'), None)
             else:
