@@ -210,7 +210,7 @@ def model_evaluate(model, temporal_contr_model, test_dl, device, training_mode):
             metrics_dict['F1'] = sklearn.metrics.f1_score(target, pred, average='macro')
             metrics_dict['AUROC'] = sklearn.metrics.roc_auc_score(target_prob, pred_prob, multi_class='ovr')
             metrics_dict['AUPRC'] = sklearn.metrics.average_precision_score(target_prob, pred_prob)
-            kmean_model = KMeans(n_clusters=2, random_state=0).fit(features)
+            kmean_model = KMeans(n_clusters=8, random_state=0).fit(features)
             kmean_pred = kmean_model.predict(features)
             metrics_dict['Silhouette'] = sklearn.metrics.silhouette_score(features, target, metric='euclidean')
             metrics_dict['ARI'] = sklearn.metrics.adjusted_rand_score(target, kmean_pred)
